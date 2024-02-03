@@ -7,7 +7,7 @@ chatGPT caught the public imagination and for the first time non-tech people cou
 Majority, if not all the LLMs, we see today are based on proven Transformer based architectures. And Transfomres have quadratic (in inputs tokens) complexity - therefore slow to train and infer. As a result, new memory and compute efficient attention mechanisms have sprungup, along with Engineering hacks. But, at the end of the day, they are still based on Transformer-based architectures.
 Majority, with the exception of some Chinese LLMs, are English-centric and other languages have a token representation (no pun intended).
 Often, LLMs have a particulalr tokenizer -- which makes extension to other languages/ domains hard.
-Developing SLMs or LLMs is still a compute heavy problem. Therefore, only big corporations with deep pockets, massive talent concentration and GPU farms can afford to build such models.
+Developing SLMs or LLMs is still a compute heavy problem. Therefore, only large consortia with deep pockets, massive talent concentration and GPU farms can afford to build such models.
 In this hackathon, we like to address the above challenges.
 
 ## Proposal:
@@ -69,7 +69,12 @@ Outcome: A functional end-to-end Pretraining and SFT-ing pipeline
 - Perplexity vs Epochs (and how Seshu is maturing)
 
 
-
 ### References:
 1. [MambaByte ](https://arxiv.org/abs/2401.13660)
 2. [Mamba](https://arxiv.org/abs/2312.00752)
+
+
+
+### Note:
+The views expressed or approach being taken - is of the individuals, and they do not represent any organization explicitly or implicitly.
+Likewise, anyone who wants to contribute their time, compute or data must understand that, this is a community experiment to develop LLMs by the community, and may not result in any significant outcome. On the contrary, this may end up in total failure. The contributors must take this risk on their own.
