@@ -5,26 +5,30 @@ SLMs by the public, for the public
 chatGPT caught the public imagination and for the first time non-tech people could experience Generative AI. This led to a surge in interest to develop safe applications of LLMs as well as developing domain specific or open source alternatives to chatGPT. Notable among them is LLaMA 2 - an LLM open sourced by Meta. This release catalyzed the development of tasks, tools, and assets ranging from datasets to new models to new applictions. An SLM called Phi 2 released by Microsoft also showed that small models (reletively that is) can also compete with large models, which can be trained and served at substantially lower costs. However, there are some challenges.
 
 Majority, if not all the LLMs, we see today are based on proven Transformer based architectures. And Transfomres have quadratic (in inputs tokens) complexity - therefore slow to train and infer. As a result, new memory and compute efficient attention mechanisms have sprungup, along with Engineering hacks. But, at the end of the day, they are still based on Transformer-based architectures.
+
 Majority, with the exception of some Chinese LLMs, are English-centric and other languages have a token representation (no pun intended).
 Often, LLMs have a particulalr tokenizer -- which makes extension to other languages/ domains hard.
 Developing SLMs or LLMs is still a compute heavy problem. Therefore, only large consortia with deep pockets, massive talent concentration and GPU farms can afford to build such models.
+
 In this hackathon, we like to address the above challenges.
 
 ## Proposal:
 ### Objectives
 - Develop a multilingual Mambaa(S4)-based SLM on multi-lingual indic dataset
-- Decentralise the training and development of SLMs/LLMs via simple federated learning framework
+- Decentralise the training and development of SLMs/LLMs via simple federated learning framework w.r.t cost, talent and compute.
+- Provide an experimental platform to develop the skills to develop SLMs/LLMs, particulalry for the student community and foster research & innovation 
 
 ## User Stories
-### Client (Donor User)
+### Client (donor user)
 
 #### Pre-reqs
  - has GPU, registers on hf/mlsquare for write access
  - familair with HuggingFace ecosystem (transfomers, peft, datasets, hub)
  - [optional] can donate time or data or both
+
 #### Actions:
- - Runs client.py which
- - downloads data, ptrained model
+Runs client side sscript which
+ - downloads data, pretrained model
  - SFTs via LoRA
  - pushes the adapter to HuggingFace model hub
 
@@ -41,8 +45,8 @@ In this hackathon, we like to address the above challenges.
  - Does continous pretrainning, and released checkpoints periodically
 
 ### Academic Interests
- - experiment and identity good federating learning policy
- - training configurations to PT, CPT, SFT, FedT SLMs and LLMs
+ - experiment and identity good federating learning policies
+ - figure out effective training configurations to PT, CPT, SFT, FedT SLMs and LLMs
  - develop new task specific adapters
  - contribute your local, vernacular data
  - curate datasets
