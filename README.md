@@ -6,8 +6,8 @@ chatGPT caught the public imagination and for the first time non-tech people cou
 
 Majority, if not all the LLMs, we see today are based on proven Transformer based architectures. And Transfomres have quadratic (in inputs tokens) complexity - therefore slow to train and infer. As a result, new memory and compute efficient attention mechanisms have sprungup, along with Engineering hacks. But, at the end of the day, they are still based on Transformer-based architectures.
 
-Majority, with the exception of some Chinese LLMs, are English-centric and other languages have a token representation (no pun intended).
-Often, LLMs have a particulalr tokenizer -- which makes extension to other languages/ domains hard.
+Further, majority, with the exception of some Chinese LLMs, are English-centric and other languages have a token representation (no pun intended).
+Often, LLMs have a particulalr tokenizer -- which makes extension to other languages/ domains hard. Vocabulary size and Transfomers Computational Efficiency have an uneasy relationship.
 Developing SLMs or LLMs is still a compute heavy problem. Therefore, only large consortia with deep pockets, massive talent concentration and GPU farms can afford to build such models.
 
 In this hackathon, we like to address the above challenges.
@@ -16,19 +16,19 @@ In this hackathon, we like to address the above challenges.
 ### Objectives
 - Develop a multilingual Mambaa(S4)-based SLM on multi-lingual indic dataset
 - Decentralise the training and development of SLMs/LLMs via simple federated learning framework w.r.t cost, talent and compute.
-- Provide an experimental platform to develop the skills to develop SLMs/LLMs, particulalry for the student community and foster research & innovation 
+- Provide an experimental platform to develop the skills to develop SLMs/LLMs, particulalry for the student community, and foster research & innovation 
 
 ## User Stories
 ### Client (donor user)
 
 #### Pre-reqs
- - has GPU, registers on hf/mlsquare for write access
+ - has GPU, registers on HuggingFace/mlsquare for write access
  - familair with HuggingFace ecosystem (transfomers, peft, datasets, hub)
  - [optional] can donate time or data or both
 
 #### Actions:
 Runs client side sscript which
- - downloads data, pretrained model
+ - downloads data, pretrains model
  - SFTs via LoRA
  - pushes the adapter to HuggingFace model hub
 
@@ -40,9 +40,9 @@ Runs client side sscript which
 - [optional] can donate time or data or both
 
 #### Actions:
- - Pretrains a multi-lingual Mamba model, publushed a checkpoint
- - Evaluated the community contributed adapters, and merges them into the PTM
- - Does continous pretrainning, and released checkpoints periodically
+ - Pretrains a multi-lingual Mamba model, publushes a checkpoint
+ - Evaluated the community contributed adapters in a single-blind fashion, and merges them into the pretrained model
+ - Does continous pretrainning, and releases checkpoints periodically
 
 ### Academic Interests
  - experiment and identity good federating learning policies
@@ -57,7 +57,7 @@ Runs client side sscript which
 - Make Mamba compatiable with Transformer class
 - Test LoRA adapters (adding, training, merging)
 - Pretrain an SLM, SFT on LoRA, Merge, Push
-Outcome: A functional end-to-end Pretraining and SFT-ing pipeline
+Outcome: A working end-to-end Pretraining and SFT-ing pipeline
 
 ### Week 1
 - Develop client-side code
@@ -93,6 +93,7 @@ Code & Tools for Models, and Distributed Training
 - Mamba pretrained model collection [here](https://huggingface.co/collections/Q-bert/mamba-65869481595e25821853d20d)
 - Mamba-minimal: a minimal implementaiton of Mamba architecture [here](https://github.com/johnma2006/mamba-minimal)
 - Mamba: original implementation by Mama authors [here](https://github.com/state-spaces/mamba/tree/main)
+- OLMo: A truly open LLM [blog](https://blog.allenai.org/hello-olmo-a-truly-open-llm-43f7e7359222)
 - Petals: decentralized inference and finetuning of large language models [blog](https://research.yandex.com/blog/petals-decentralized-inference-and-finetuning-of-large-language-models), [paper](https://arxiv.org/abs/2209.01188), [git repo](https://github.com/bigscience-workshop/petals)
 - position blog on Petals: a shift in training LLMs with Petals network [techcrunch blog](https://techcrunch.com/2022/12/20/petals-is-creating-a-free-distributed-network-for-running-text-generating-ai/)
 - Shepherd: A Platform Supporting Federated Instruction Tuning [here](https://github.com/JayZhang42/FederatedGPT-Shepherd)
