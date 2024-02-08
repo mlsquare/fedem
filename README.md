@@ -85,10 +85,10 @@ Indic LLMs
 - Open Hathi - [blog](https://www.sarvam.ai/blog/announcing-openhathi-series) from sarvam.ai, 12th Dec, 2023
 - MaLA-500: Massive Language Adaptation of Large Language Models [paper](https://arxiv.org/abs/2401.13303)
 
-Model Mering
+Model Merging
 - Model soups: averaging weights of multiple fine-tuned models improves accuracy without increasing inference time [paper](https://arxiv.org/abs/2203.05482)
 - Editing Models with Task Arithmetic [paper](https://arxiv.org/abs/2212.04089)
-- TIES-Merging: Resolving Interference When Merging Models [paper](TIES-Merging: Resolving Interference When Merging Models)
+- TIES-Merging: Resolving Interference When Merging Models [paper](https://arxiv.org/abs/2306.01708)
 - Language Models are Super Mario: Absorbing Abilities from Homologous Models as a Free Lunch [paper](https://arxiv.org/abs/2311.03099)
 - Rethinking Alignment via In-Context Learning (implments token distribution shift) [blog](https://allenai.github.io/re-align/)
 
