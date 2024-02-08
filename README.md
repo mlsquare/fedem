@@ -85,6 +85,13 @@ Indic LLMs
 - Open Hathi - [blog](https://www.sarvam.ai/blog/announcing-openhathi-series) from sarvam.ai, 12th Dec, 2023
 - MaLA-500: Massive Language Adaptation of Large Language Models [paper](https://arxiv.org/abs/2401.13303)
 
+Model Mering
+- Model soups: averaging weights of multiple fine-tuned models improves accuracy without increasing inference time [paper](https://arxiv.org/abs/2203.05482)
+- Editing Models with Task Arithmetic [paper](https://arxiv.org/abs/2212.04089)
+- TIES-Merging: Resolving Interference When Merging Models [paper](TIES-Merging: Resolving Interference When Merging Models)
+- Language Models are Super Mario: Absorbing Abilities from Homologous Models as a Free Lunch [paper](https://arxiv.org/abs/2311.03099)
+- Rethinking Alignment via In-Context Learning (implments token distribution shift) [blog](https://allenai.github.io/re-align/)
+
 Datasets
 - samantar [here](https://huggingface.co/datasets/ai4bharat/samanantar)
 
@@ -99,7 +106,7 @@ Code & Tools for Models, and Distributed Training
 - Shepherd: A Platform Supporting Federated Instruction Tuning [here](https://github.com/JayZhang42/FederatedGPT-Shepherd)
 - FATE-LM is a framework to support federated learning for large language models(LLMs) [here](https://github.com/FederatedAI/FATE-LLM)
 - FEDML Open Source: A Unified and Scalable Machine Learning Library for Running Training and Deployment Anywhere at Any Scale [here](https://github.com/FedML-AI/FedML)
-
+- mergekit for model merign to implement multiple model merging techiques [here](https://github.com/arcee-ai/mergekit)
 
 
 ### Note:
