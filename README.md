@@ -91,6 +91,7 @@ Model Merging
 - TIES-Merging: Resolving Interference When Merging Models [paper](https://arxiv.org/abs/2306.01708)
 - Language Models are Super Mario: Absorbing Abilities from Homologous Models as a Free Lunch [paper](https://arxiv.org/abs/2311.03099)
 - Rethinking Alignment via In-Context Learning (implments token distribution shift) [blog](https://allenai.github.io/re-align/)
+- PhatGoose: The Challenge of Recycling PEFT Modules for Zero-Shot Generalization [blog](https://colinraffel.com/blog/phatgoose.html)
 
 Datasets
 - samantar [here](https://huggingface.co/datasets/ai4bharat/samanantar)
