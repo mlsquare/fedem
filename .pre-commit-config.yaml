@@ -1,0 +1,90 @@
+# to setup pre-commits check out the link below
+# link: https://pre-commit.com/hooks.html
+
+# exclude: '^scripts/hp_search.*|^src/old_encodings.*|^scripts/debug.*'
+
+repos:
+    # Code Quality Hooks
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+    -   id: check-ast
+          # - id: check-xml
+    -   id: check-yaml
+    -   id: debug-statements
+    # -   id: check-json
+    # -   id: pretty-format-json
+    #     args:
+    #     -   --autofix
+    #     -   --indent=4
+    #     -   --no-sort-keys
+
+# -   repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+#     rev: v2.10.0
+#     hooks:
+#     -   id: pretty-format-yaml
+#         args:
+#         -   --autofix
+#         -   --indent=4
+#         -   --line-width=70
+
+    # General Code Hooks
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+    -   id: requirements-txt-fixer
+    -   id: mixed-line-ending
+        args: [--fix=auto]
+    -   id: check-added-large-files
+        args: [--maxkb=2500]
+    -   id: check-merge-conflict
+    -   id: check-case-conflict
+    -   id: check-docstring-first
+
+# Code Style Hooks
+# -   repo: https://github.com/pre-commit/mirrors-mypy
+#     rev: v1.5.0
+#     hooks:
+#     -   id: mypy
+#         verbose: true
+#         args: [--install-types, --non-interactive, --ignore-missing-imports, --show-error-codes]
+
+-   repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+    -   id: isort
+
+-   repo: https://github.com/PyCQA/autoflake
+    rev: v2.3.0
+    hooks:
+    -   id: autoflake
+
+-   repo: https://github.com/psf/black
+    rev: 24.2.0
+    hooks:
+    -   id: black
+
+# -   repo: https://github.com/PyCQA/flake8
+#     rev: 6.1.0
+#     hooks:
+#     -   id: flake8
+
+-   repo: https://github.com/kynan/nbstripout
+    rev: 0.7.1
+    hooks:
+    -   id: nbstripout
+
+-   repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.7.1
+    hooks:
+    -   id: nbqa-black
+        additional_dependencies: [black]
+
+    # -   id: nbqa-flake8
+    #     additional_dependencies: [flake8]
+    #     args: [--max-line-length=150]
+
+    -   id: nbqa-isort
+        additional_dependencies: [isort]

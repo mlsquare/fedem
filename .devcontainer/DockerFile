@@ -1,0 +1,40 @@
+FROM ubuntu:22.04
+
+# Set timezone (replace with your preferred zone)
+# ENV TZ Europe/London
+
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    wget \
+    build-essential \
+    zlib1g-dev \
+    libncurses5-dev \
+    libgdbm-dev \
+    libnss3-dev \
+    libssl-dev \
+    libbz2-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    llvm \
+    make \
+    libxml2-dev \
+    libxmlsec1-dev \
+    libffi-dev \
+    liblzma-dev
+
+# Optional: Install additional tools and languages
+# RUN apt-get install -y nodejs python3
+
+# Set working directory
+WORKDIR /app
+
+# Expose ports (comment out if not needed)
+# EXPOSE 8080
+
+# CMD ["your", "startup", "command"]
+
+# Entrypoint script (uncomment if needed)
+# COPY entrypoint.sh /
+# RUN chmod +x /entrypoint.sh
+# ENTRYPOINT ["/entrypoint.sh"]
