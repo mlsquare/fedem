@@ -8,21 +8,18 @@
 
 name: Upload Python Package to PyPI
 
-on:
-  release:
-    types: [published]
+on: push
 
 permissions:
   contents: read
 
 jobs:
-  deploy:
-
-    runs-on: ubuntu-latest
-
+  build-n-publish:
+    name: Build and publish Python 🐍 distributions 📦 to PyPI
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python
+    - name: Set up Python 3.10
       uses: actions/setup-python@v3
       with:
         python-version: '3.10'
