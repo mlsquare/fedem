@@ -14,15 +14,15 @@ setuptools.setup(
     author_email="seshu@mlsquare.com",
     license="MIT",
     project_urls={
-        "Documentation": "mlsquare.com",
+        "Documentation": "https://github.com/mlsquare/",
         "Source": "https://github.com/mlsquare/seshu/",
     },
     classifiers=[
         "Development Status :: 1 - Planning",
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-        "Topic :: Large Language Models",
+        # "Programming Language :: Python :: 3.11",
+        # "Topic :: Large Language Models",
         "License :: OSI Approved :: MIT License",
     ],
     python_requires=">=3.10",
