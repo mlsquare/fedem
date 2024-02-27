@@ -5,8 +5,8 @@ import setuptools
 # The directory containing this file
 setuptools.setup(
     name="fedem",
-    version="0.0.1",
-    description="A simple example package",
+    version="0.0.2",
+    description="A simple example package ",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
     url="https://github.com/mlsquare/",
