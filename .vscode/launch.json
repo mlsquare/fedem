@@ -1,0 +1,20 @@
+{
+    "version": "0.1.0",
+    "configurations": [
+        {
+            "name": "Debug FedeM",
+            "type": "debugpy",
+            "request": "launch",
+            "justMyCode": true,
+            "module": "${command:extension.commandvariable.file.relativeFileDotsNoExtension}",
+            "cwd":"${workspaceFolder}",
+            "program": "scripts/debug_fedem.py",
+            "console": "integratedTerminal",
+            "purpose": [
+                "debug-in-terminal"
+            ],
+
+            "preLaunchTask": "Clear terminal"
+        },
+    ]
+}

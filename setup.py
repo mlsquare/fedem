@@ -2,11 +2,10 @@ import pathlib
 
 import setuptools
 
-# The directory containing this file
 setuptools.setup(
     name="fedem",
-    version="0.0.2",
-    description="A simple example package ",
+    version="0.0.1",
+    description="This repository is still in work in progress. It will be a federated learning library.",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
     url="https://github.com/mlsquare/",
@@ -21,12 +20,18 @@ setuptools.setup(
         "Development Status :: 1 - Planning",
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 3.10",
-        # "Programming Language :: Python :: 3.11",
-        # "Topic :: Large Language Models",
         "License :: OSI Approved :: MIT License",
     ],
     python_requires=">=3.10",
-    install_requires=["transformers", "torch"],
+    install_requires=[
+        "transformers",
+        "torch",
+        "datasets",
+        "einops",
+        "accelerate",
+        "peft",
+        "huggingface-hub",
+    ],
     packages=setuptools.find_packages(),
     include_package_data=True,
 )

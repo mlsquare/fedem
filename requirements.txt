@@ -1,3 +1,11 @@
-einops==0.7.0
-torch==2.2.1
-transformers==4.38.1
+accelerate
+build
+datasets
+einops
+huggingface-hub
+ipywidgets
+jupyter
+peft
+pre-commit
+torch
+transformers

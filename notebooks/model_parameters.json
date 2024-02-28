@@ -1,0 +1,15 @@
+{
+    "vocab_size": 7000,
+    "d_model": 1,
+    "d_conv": 4,
+    "expand": 2,
+    "conv_bias": true,
+    "bias": false,
+    "n_layer": 1,
+    "dt_rank": "auto",
+    "pad_vocab_size_multiple": 8,
+    "initializer_range": 0.02,
+    "tokenizer_path": "google/byt5-large",
+    "upload_path": "mlsquare/pico_mamba",
+    "data": "mlsquare/samantar1per_cent_merged_with_train_val"
+}

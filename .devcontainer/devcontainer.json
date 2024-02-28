@@ -25,11 +25,27 @@
         "customizations": {
                 "vscode": {
                         "extensions": [
-                                "GitHub.copilot",
-                                "GitHub.copilot-chat",
-                                "tamasfe.even-better-toml",
-                                "usernamehw.errorlens",
-                                "GitHub.vscode-pull-request-github"
+                                "74th.monokai-charcoal-high-contrast",
+                                "eamodio.gitlens",
+                                "GitHub.github-vscode-theme",
+                                "GitHub.vscode-pull-request-github",
+                                "Gruntfuggly.todo-tree",
+                                "ms-dotnettools.vscode-dotnet-runtime",
+                                "ms-python.black-formatter",
+                                "ms-python.flake8",
+                                "ms-python.isort",
+                                "ms-python.python",
+                                "ms-python.vscode-pylance",
+                                "ms-toolsai.jupyter",
+                                "ms-toolsai.jupyter-keymap",
+                                "ms-toolsai.jupyter-renderers",
+                                "ms-toolsai.vscode-jupyter-cell-tags",
+                                "ms-toolsai.vscode-jupyter-slideshow",
+                                "njpwerner.autodocstring",
+                                "oderwat.indent-rainbow",
+                                "redhat.vscode-yaml",
+                                "ritwickdey.LiveServer",
+                                "zhuangtongfa.material-theme"
                         ]
                 }
         }
