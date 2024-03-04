@@ -6,7 +6,7 @@ from transformers import (
     TrainingArguments,
 )
 
-from .utils import (
+from .utils.utils import (
     MambaTrainer,
     load_data,
     load_json,

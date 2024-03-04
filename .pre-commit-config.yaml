@@ -77,7 +77,7 @@ repos:
     -   id: nbstripout
 
 -   repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.7.1
+    rev: 1.8.3
     hooks:
     -   id: nbqa-black
         additional_dependencies: [black]

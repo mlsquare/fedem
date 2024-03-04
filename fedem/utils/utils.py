@@ -8,8 +8,8 @@ from huggingface_hub import HfApi, ModelFilter
 from peft import LoraConfig, get_peft_model
 from transformers import AutoTokenizer, Trainer
 
-from .configuration_mamba import MambaConfig
-from .modeling_mamba import MambaForCausalLM
+from ..configurations.mamba import MambaConfig
+from ..models.mamba import MambaForCausalLM
 
 
 def load_json(json_path):

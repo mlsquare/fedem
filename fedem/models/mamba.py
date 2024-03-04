@@ -13,7 +13,7 @@ from transformers.modeling_outputs import (
 )
 from transformers.modeling_utils import PreTrainedModel
 
-from .configuration_mamba import MambaConfig
+from ..configurations.mamba import MambaConfig
 
 # Dear contributors of the https://github.com/johnma2006/mamba-minimal/tree/master repository, special thanks to Albert Gu and Tri Dao for their articles. (https://arxiv.org/abs/2312.00752)
 
