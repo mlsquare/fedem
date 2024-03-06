@@ -4,7 +4,7 @@ import setuptools
 
 setuptools.setup(
     name="fedem",
-    version="0.0.3.5",
+    version="0.0.4",
     description="This repository is still in work in progress. It will be a federated learning library.",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
