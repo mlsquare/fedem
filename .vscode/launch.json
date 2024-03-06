@@ -12,6 +12,8 @@
             ],
             "justMyCode": true,
             "preLaunchTask": "Clear terminal"
+            // "preLaunchTask": "Export PYTHONPATH"
         },
+
     ]
 }

@@ -11,7 +11,7 @@ skip-string-normalization = true
 profile = "black"
 
 [tool.autoflake]
-remove-all-unused-imports = true
+remove-all-unused-imports = false
 recursive = true
 
 # [tool.mypy]

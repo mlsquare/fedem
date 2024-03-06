@@ -1,4 +1,5 @@
 # type: ignore
+
 import json
 
 import torch
@@ -64,14 +65,10 @@ def model_merge_large(adapters, model_path, data, tokenizer):
 
 def model_merge_small(adapters, model_path, data, tokenizer):
 
-    base_model = MambaForCausalLM.from_pretrained(
-        model_path, token="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"
-    )
+    base_model = MambaForCausalLM.from_pretrained(model_path)
     print("model loaded")
 
-    peft_model = PeftMixedModel.from_pretrained(
-        base_model, adapters["small"][0], token="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"
-    )
+    peft_model = PeftMixedModel.from_pretrained(base_model, adapters["small"][0])
     peft_model.load_adapter(adapters["small"][1], adapter_name="1")
     peft_model.load_adapter(adapters["small"][2], adapter_name="2")
     peft_model.set_adapter(["default", "1", "2"])
