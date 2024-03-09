@@ -6,16 +6,20 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Upload Python Package to PyPI
+name: Python Code to PyPI Package
 
-on: push
+# on: push
+on:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
 
 jobs:
   build-n-publish:
-    name: Build and publish Python 🐍 distributions 📦 to PyPI
+    name: Code to Package
     runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v3
