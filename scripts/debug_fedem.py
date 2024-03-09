@@ -16,7 +16,7 @@ model = Seshu(
     target_modules=["model.layers.3.dt_proj"],
     hf_adapter_path="mlsquare/mamba_pico_small_dt_proj",
     hf_data_path="mlsquare/CLIENT_samantar_mixed_train_val",
-    hf_token="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",
+    hf_token="<hf_token_here>",
 )
 
 model.train_lora(debug=True)
