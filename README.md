@@ -16,7 +16,7 @@ In this hackathon, we like to address the above challenges.
 ### Objectives
 - Develop a multilingual Mambaa(S4)-based SLM on multi-lingual indic dataset
 - Decentralise the training and development of SLMs/LLMs via simple federated learning framework w.r.t cost, talent and compute.
-- Provide an experimental platform to develop the skills to develop SLMs/LLMs, particulalry for the student community, and foster research & innovation 
+- Provide an experimental platform to develop the skills to develop SLMs/LLMs, particulalry for the student community, and foster research & innovation
 
 ## User Stories
 ### Client (donor user)
@@ -50,7 +50,7 @@ Runs client side sscript which
  - develop new task specific adapters
  - contribute your local, vernacular data
  - curate datasets
-  
+
 ## Roadmap
 
 ### Week 0

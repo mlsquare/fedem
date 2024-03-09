@@ -1,0 +1,19 @@
+{
+    "version": "0.1.0",
+    "configurations": [
+        {
+            "name": "Debug FedeM",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "scripts/debug_fedem.py",
+            "console": "integratedTerminal",
+            "purpose": [
+                "debug-in-terminal"
+            ],
+            "justMyCode": true,
+            "preLaunchTask": "Clear terminal"
+            // "preLaunchTask": "Export PYTHONPATH"
+        },
+
+    ]
+}

@@ -1,0 +1,9 @@
+{
+    "model_path": "Q-bert/Mamba-130M",
+    "tokenizer_path": "Q-bert/Mamba-130M",
+    "target_modules": [
+        "out_proj"
+    ],
+    "adapter_path": "mlsquare/exp-lora-ada-1",
+    "data": "mlsquare/samantar1per_cent_merged_with_train_val"
+}

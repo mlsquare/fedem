@@ -1,0 +1,70 @@
+{
+    "workbench.editor.wrapTabs": true,
+    "editor.renderWhitespace": "selection",
+    "chat.editor.fontFamily": "default",
+    "files.autoSave": "afterDelay",
+    "editor.inlineSuggest.enabled": true,
+    "editor.minimap.enabled": false,
+    "window.zoomLevel": 1,
+    "terminal.integrated.tabs.location": "left",
+    "terminal.integrated.tabs.enabled": false,
+    "[yaml]": {
+        "editor.tabSize": 4,
+        "editor.insertSpaces": true,
+        "editor.detectIndentation": false
+    },
+    "terminal.integrated.profiles.linux": {
+        "bash": {
+            "path": "bash",
+            "icon": "terminal-bash"
+        },
+        "tmux: dashboard": {
+            "path": "tmux",
+            "icon": "terminal-tmux",
+            "commandLine": "tmux attach -t dashboard || tmux new -s dashboard"
+        }
+    },
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.inlayHints.functionReturnTypes": false,
+    "python.analysis.inlayHints.variableTypes": false,
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        }
+    },
+    "isort.args": [
+        "--profile=black"
+    ],
+    "todo-tree.highlights.defaultHighlight": {
+        "icon": "alert",
+        "type": "text",
+        "foreground": "#09ff00c8",
+        "background": "#ffffff00",
+        "opacity": 50,
+        "iconColour": "#00ff1e"
+    },
+    "todo-tree.highlights.customHighlight": {
+        "TODO": {
+            "icon": "check",
+            "type": "line"
+        },
+        "FIXME": {
+            "foreground": "#ffad20",
+            "iconColour": "#d900ff",
+            "gutterIcon": true
+        }
+    },
+    "indentRainbow.errorColor": "rgba(128,32,32,0.6)",
+    "indentRainbow.includedLanguages": [
+        "python"
+    ],
+    "indentRainbow.indicatorStyle": "light",
+    "indentRainbow.colorOnWhiteSpaceOnly": true,
+    "indentRainbow.tabmixColor": "",
+    "githubPullRequests.ignoredPullRequestBranches": [
+        "develop"
+    ],
+    "terminal.integrated.allowMnemonics": true
+}
