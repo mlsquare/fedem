@@ -1,11 +1,8 @@
 accelerate
-build
 datasets
 einops
 huggingface-hub
-ipywidgets
 jupyter
 peft
-pre-commit
 torch
 transformers
