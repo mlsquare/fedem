@@ -1,4 +1,5 @@
 import json
+import time
 
 import torch
 import torch.nn as nn
@@ -53,7 +54,7 @@ class Seshu:
                 input_batch.append(input_ids)
         return {"input_ids": input_batch}
 
-    def pretrain(self):
+    def pretrain(self, cpt_hours: int | None = None):
         #         model_config = make_config(self.config_data)
         if get_checkpoint_model(self.config_data["upload_path"]):
             model = MambaForCausalLM.from_pretrained(self.config_data["upload_path"])
@@ -79,6 +80,7 @@ class Seshu:
         tokenized_data = data.map(
             self.tokenize, batched=True, remove_columns=data["train"].column_names
         )
+
         trainer = MambaTrainer(
             model=model,
             tokenizer=self.tokenizer,
@@ -87,7 +89,16 @@ class Seshu:
             train_dataset=tokenized_data["train"],
             eval_dataset=tokenized_data["valid"],
         )
-        trainer.train()
+
+        if cpt_hours:
+            start_time = time.time()
+            while True:
+                if time.time() - start_time > cpt_hours * 3600:
+                    break
+
+                trainer.train()
+        else:
+            trainer.train()
 
     def model_merge_eval(
         self, model_path, type_config="small", data="mlsquare/SERVER_samantar_mixed_val"
