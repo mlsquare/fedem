@@ -2,7 +2,6 @@ import os
 
 from huggingface_hub import CommitInfo, RepoUrl
 from transformers import (
-    AutoModelForCausalLM,
     AutoTokenizer,
     DataCollatorForLanguageModeling,
     TrainingArguments,
@@ -23,7 +22,6 @@ class Seshu:
         target_modules: list[str],
         hf_adapter_path: str,
         hf_data_path: str,
-        training_args: TrainingArguments | None = None,
         org_id: str = "mlsquare",
         hf_token: str | None = None,
     ):
@@ -62,19 +60,6 @@ class Seshu:
         self.local_path: str = os.path.join(os.getcwd(), self.repo_name)
         os.makedirs(self.local_path, exist_ok=True)
 
-        if training_args is None:
-            self.training_args = TrainingArguments(
-                output_dir=os.path.join(self.local_path, "outputs"),
-                num_train_epochs=1,
-                per_device_train_batch_size=8,
-                per_device_eval_batch_size=8,
-                warmup_steps=500,
-                weight_decay=0.01,
-                logging_dir=os.path.join(self.local_path, "logs"),
-            )
-        else:
-            self.training_args = training_args
-
         self.tokenizer = AutoTokenizer.from_pretrained(hf_tokenizer_path)
 
     def tokenize(self, data_to_tokenize):
@@ -100,23 +85,31 @@ class Seshu:
 
     def train_lora(
         self,
+        training_args: TrainingArguments | None = None,
         debug: bool = False,
     ):
 
-        avail = False
-        try:
-            model = AutoModelForCausalLM.from_pretrained(
-                pretrained_model_name_or_path=self.hf_model_path, token=self.hf_token
+        if training_args is None:
+            self.training_args = TrainingArguments(
+                output_dir=os.path.join(self.local_path, "outputs"),
+                num_train_epochs=1,
+                per_device_train_batch_size=8,
+                per_device_eval_batch_size=8,
+                warmup_steps=500,
+                weight_decay=0.01,
+                logging_dir=os.path.join(self.local_path, "logs"),
             )
-            model.enable_input_require_grads()
-            model.load_adapter(self.hf_adapter_path)
-            avail = True
-        except Exception:
-            print("Creating new adapter as the previous one is not valid.")
+        else:
+            self.training_args = training_args
 
-        if not avail:
+        try:
+            model = MambaForCausalLM.from_pretrained(self.hf_model_path)
+            model.enable_input_require_grads()  # type: ignore
+            model.load_adapter(self.hf_adapter_path)  # type: ignore
+        except Exception:
             model = MambaForCausalLM.from_pretrained(self.hf_model_path)
             model = load_model_with_LoRA(model, self.target_modules, self.local_path)
+            print("Creating new adapter as the previous one is not valid.")
 
         self.tokenizer.pad_token = self.tokenizer.eos_token
 
@@ -142,9 +135,6 @@ class Seshu:
             trainer.train()
         else:
             print("trainer.train() will be called in non debug mode")
-
-            # storing the model as a class variable
-            self.model = model
 
         trainer.save_model(os.path.join(self.local_path, "local_copy"))
 

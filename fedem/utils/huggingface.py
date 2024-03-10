@@ -29,7 +29,9 @@ def get_client_details(hf_token: str | None = None) -> tuple:
         )
 
 
-def verify_user_with_org(client_details: dict, org_id: str) -> dict:
+def verify_user_with_org(
+    client_details: dict, org_id: str, access_level: list = ['contributor']
+) -> dict:
     """
     Verify if the user is part of the organization.
 
@@ -42,9 +44,9 @@ def verify_user_with_org(client_details: dict, org_id: str) -> dict:
     """
 
     for hf_org in client_details['orgs']:
-        if (hf_org['name'] == org_id) and (hf_org['roleInOrg'] == 'contributor'):
+        if (hf_org['name'] == org_id) and (hf_org['roleInOrg'] in access_level):
             return hf_org
 
     raise Exception(
-        f"{client_details['fullname']} is not part of the {org_id} organization. Please join as a contributor."
+        f"{client_details['fullname']} is not part of the {org_id} organization. Please join as a {access_level}."
     )

@@ -1,0 +1,10 @@
+{
+    "small": [
+        "mlsquare/mamba_pico_small_out_proj",
+        "mlsquare/mamba_pico_small_dt_proj",
+        "mlsquare/mamba_pico_small_x_proj"
+    ],
+    "large": [
+        "mlsquare/mamba_pico_large_x_dt_out_proj"
+    ]
+}
