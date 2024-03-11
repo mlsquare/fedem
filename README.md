@@ -1,25 +1,68 @@
-## Projcect Seshu
-SLMs by the public, for the public
+<p align="center">
+  <img src="assets/seshu_logo.webp" width="200" height="200">
+</p>
 
-### Introduction
-chatGPT caught the public imagination and for the first time non-tech people could experience Generative AI. This led to a surge in interest to develop safe applications of LLMs as well as developing domain specific or open source alternatives to chatGPT. Notable among them is LLaMA 2 - an LLM open sourced by Meta. This release catalyzed the development of tasks, tools, and assets ranging from datasets to new models to new applictions. An SLM called Phi 2 released by Microsoft also showed that small models (reletively that is) can also compete with large models, which can be trained and served at substantially lower costs. However, there are some challenges.
+<p align="center">
+ <h2> <b>FedEm - A decentralized framework to train foundational models</b></h2>
+</p>
 
+<p align="center">
+
+FedEm is an open-source library empowering community members to actively participate in the training and fine-tuning of foundational models, fostering transparency and equity in AI development. It aims to democratize the process, ensuring inclusivity and collective ownership in model training.
+</p>
+
+<h2> Introduction </h2>
+The emergence of ChatGPT captured widespread attention, marking the first instance where individuals outside of technical circles could engage with Generative AI. This watershed moment sparked a surge of interest in cultivating secure applications of foundational models, alongside the exploration of domain-specific or community-driven alternatives to ChatGPT. Notably, the unveiling of LLaMA 2, an LLM generously open-sourced by Meta, catalyzed a plethora of advancements. This release fostered the creation of diverse tasks, tools, and resources, spanning from datasets to novel models and applications. Additionally, the introduction of Phi 2, an SLM by Microsoft, demonstrated that modestly-sized models could rival their larger counterparts, offering a compelling alternative that significantly reduces both training and operational costs.
+
+Yet, amid these strides, challenges persist. The training of foundational models within current paradigms demands substantial GPU resources, presenting a barrier to entry for many eager contributors from the broader community. In light of these obstacles, we advocate for FedEm.
+
+<b>FedEm (Federated Emergence)</b> stands as an open-source library dedicated to decentralizing the training process of foundational models, with a commitment to transparency, responsibility, and equity. By empowering every member of the community to participate in the training and fine-tuning of foundational models, FedEm mitigates the overall computational burden per individual, fostering a more democratic approach to model development. In essence, FedEm epitomizes a paradigm shift, where foundational models are crafted not just for the people, but by the people, ensuring inclusivity and collective ownership throughout the training journey.
+
+
+<h2> FedEm Framework </h2>
+FedEm proposes a methodology to train a foundational model continuously, utilizing adapters. FedEm can be elaborated in mainly two sections. Decentralization of adapter training using CRFs and large scale updation using continuous pretraining checkpoints.
+
+<h3> Continuous Relay Finetuning (CRF) </h3>
+<p align="center">
+  <img src="assets/CRF.png" width="350" height="350"><br>
+  <b>Continuous Relay Finetuning</b>
+</p>
+We introduce the concept of continuous relay finetuning (CRF), which employs parameter-efficient LoRA adapters in a relay-like fashion for training foundational models. In this method, a client conducts local training of an adapter on a specified dataset, followed by its transmission to a cloud server for subsequent download by another client for further finetuning. FedEm ensures the continuous training of adapters, which are subsequently merged with a foundational model to create an updated model. CRF facilitates community engagement throughout the training process and offers a transparent framework for tracking and continuously updating adapters as new data becomes available, thereby enhancing the adaptability and inclusivity of AI development efforts.
+
+<h3> Continuous Pretraining(CPT) </h3>
+
+The server-side cloud hub exhibits the capability for perpetual training and deployment of refreshed foundational models at specified intervals, such as monthly or daily cycles. Simultaneously, the CRF adapters engage in iterative refinement against these newly updated models, fostering continual adaptation in response to evolving datasets.
+
+<h2> Seshu </h2>
 Majority, if not all the LLMs, we see today are based on proven Transformer based architectures. And Transfomres have quadratic (in inputs tokens) complexity - therefore slow to train and infer. As a result, new memory and compute efficient attention mechanisms have sprungup, along with Engineering hacks. But, at the end of the day, they are still based on Transformer-based architectures.
+</br></br>
+Further, majority, with the exception of some Chinese LLMs, are English-centric and other languages have a token representation (no pun intended). Often, LLMs have a particulalr tokenizer -- which makes extension to other languages/ domains hard. Vocabulary size and Transfomers Computational Efficiency have an uneasy relationship. Developing SLMs or LLMs is still a compute heavy problem. Therefore, only large consortia with deep pockets, massive talent concentration and GPU farms can afford to build such models.
 
-Further, majority, with the exception of some Chinese LLMs, are English-centric and other languages have a token representation (no pun intended).
-Often, LLMs have a particulalr tokenizer -- which makes extension to other languages/ domains hard. Vocabulary size and Transfomers Computational Efficiency have an uneasy relationship.
-Developing SLMs or LLMs is still a compute heavy problem. Therefore, only large consortia with deep pockets, massive talent concentration and GPU farms can afford to build such models.
+<h2>Client side </h2>
 
-In this hackathon, we like to address the above challenges.
+It is as simple as it gets!
 
-## Proposal:
-### Objectives
-- Develop a multilingual Mambaa(S4)-based SLM on multi-lingual indic dataset
-- Decentralise the training and development of SLMs/LLMs via simple federated learning framework w.r.t cost, talent and compute.
-- Provide an experimental platform to develop the skills to develop SLMs/LLMs, particulalry for the student community, and foster research & innovation
+#### installation
+```bash
+$ pip install fedem
+```
+#### import and create a Seshu object
+```python
+from fedem.client import Seshu
+from transformers import TrainingArguments
+model = Seshu(hf_tokenizer_path =  "google/byt5-large",
+              hf_token = "<TOKEN>",
+              hf_model_path =  "mlsquare/pico_seshu_test",
+              target_modules = ["<MODULE>"],
+              hf_adapter_path = "<ADAPTER>", 
+              hf_data_path = "mlsquare/CLIENT_samantar_mixed_train_val",)
 
-## User Stories
-### Client (donor user)
+```
+
+#### train!
+```python
+model.train_lora()
+```
 
 #### Pre-reqs
  - has GPU, registers on HuggingFace/mlsquare for write access
@@ -32,7 +75,8 @@ Runs client side sscript which
  - SFTs via LoRA
  - pushes the adapter to HuggingFace model hub
 
-### Server (who manages the federated learning)
+
+<h2>Server (who manages the federated learning)</h2>
 
 #### Pre-reqs
 - has (big) GPU(s)
@@ -51,26 +95,29 @@ Runs client side sscript which
  - contribute your local, vernacular data
  - curate datasets
 
-## Roadmap
+
+ ## Roadmap
 
 ### Week 0
-- Make Mamba compatiable with Transformer class
-- Test LoRA adapters (adding, training, merging)
-- Pretrain an SLM, SFT on LoRA, Merge, Push
-Outcome: A working end-to-end Pretraining and SFT-ing pipeline
+- ~~Make Mamba compatiable with Transformer class~~
+- ~~Test LoRA adapters (adding, training, merging)~~
+- ~~Pretrain an SLM, SFT on LoRA, Merge, Push~~
+Outcome: A working end-to-end Pretraining and SFT-ing pipeline[DONE]
 
 ### Week 1
-- Develop client-side code
-- On multi-lingual indic dataset such as [samantar](https://huggingface.co/datasets/ai4bharat/samanantar), pretrain a model
-- Release a checkpoint
+- ~~Develop client-side code[~~
+- ~~On multi-lingual indic dataset such as [samantar](https://huggingface.co/datasets/ai4bharat/samanantar), pretrain a model~~
+- Release a checkpoint[DONE]
 
 ### Week 2
-- Drive SFT via community (at least two users)
-- Run Federated SFT-ing
+- ~~Drive SFT via community (at least two users)~~
+- ~~Run Federated SFT-ing[~~
 
 ### Week 4 and onwards
 - Benchmark and eval on test set (against other OSS LLMS)
 - Perplexity vs Epochs (and how Seshu is maturing)
+
+
 
 
 ### References:
