@@ -4,6 +4,7 @@ einops
 huggingface-hub
 jupyter
 peft
+requests==2.27.1
 torch
 transformers
 wandb

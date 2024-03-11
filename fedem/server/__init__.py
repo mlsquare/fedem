@@ -19,12 +19,43 @@ from transformers import (
 
 from ..configurations.mamba import MambaConfig
 from ..models.mamba import MambaForCausalLM, MambaModel
+from ..utils.huggingface import get_client_details, verify_user_with_org
 
 
 class Seshu:
-    def __init__(self, adapters, config_file, train_args=False):
-        self.adapters = load_json(adapters)
-        self.config_data = load_json(config_file)
+    def __init__(
+        self,
+        adapters: dict | str,
+        config_file: dict | str,
+        hf_token: str | None = None,
+        org_id: str = "mlsquare",
+        train_args=False,
+    ):
+
+        self.hf_token = hf_token
+        self.api, self.client_details = get_client_details(hf_token=self.hf_token)
+
+        self.username: str = self.client_details['name']
+        self.fullname: str = self.client_details['fullname']
+
+        self.org_id = org_id
+        self.org_details = verify_user_with_org(
+            self.client_details, self.org_id, access_level=['admin', 'write']
+        )
+        print(
+            f"{self.fullname} is part of the organization {self.org_id} with write access."
+        )
+
+        if isinstance(adapters, str):
+            self.adapters = load_json(adapters)
+        else:
+            self.adapters = adapters
+
+        if isinstance(config_file, str):
+            self.config_data = load_json(config_file)
+        else:
+            self.config_data = config_file
+
         if train_args:
             self.train_args = train_args
         else:
@@ -55,9 +86,10 @@ class Seshu:
         return {"input_ids": input_batch}
 
     def pretrain(self, cpt_hours: int | None = None):
-        #         model_config = make_config(self.config_data)
         if get_checkpoint_model(self.config_data["upload_path"]):
-            model = MambaForCausalLM.from_pretrained(self.config_data["upload_path"])
+            model = MambaForCausalLM.from_pretrained(
+                self.config_data["upload_path"], token=self.hf_token
+            )
         else:
             model = MambaForCausalLM(
                 MambaConfig(
@@ -82,12 +114,12 @@ class Seshu:
         )
 
         trainer = MambaTrainer(
-            model=model,
+            model=model,  # type: ignore
             tokenizer=self.tokenizer,
-            args=self.train_args,
+            args=self.train_args,  # type: ignore
             data_collator=data_collator,
-            train_dataset=tokenized_data["train"],
-            eval_dataset=tokenized_data["valid"],
+            train_dataset=tokenized_data["train"],  # type: ignore
+            eval_dataset=tokenized_data["valid"],  # type: ignore
         )
 
         if cpt_hours:
@@ -238,10 +270,10 @@ def get_checkpoint_model(model_name):
         models = api.list_models(filter=new_filter)
 
         for i in models:
-            if org_id in i.modelId:
+            if org_id in i.modelId:  # type: ignore
                 print(i)
-                if model_name in i.modelId:
-                    return i.modelId
+                if model_name in i.modelId:  # type: ignore
+                    return i.modelId  # type: ignore
         return False
 
     org_id = "mlsquare"

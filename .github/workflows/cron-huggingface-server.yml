@@ -1,0 +1,45 @@
+
+name:
+    First Cron Job
+
+# Controls when the workflow will run
+on:
+    # Triggers the workflow every 30 minutes
+    # schedule:
+    #     - cron: "*/30 * * * *"
+
+    # Allows you to run this workflow manually from the Actions tab
+    workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-n-publish:
+    name: HuggingFace Server Cron
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install huggingface-hub
+
+    - name: Setup Huggingface Account
+      env:
+        HF_TOKEN_SECRET: ${{ secrets.HF_FEDEM_WRITE_TOKEN }}
+      run: |
+        huggingface-cli login --token  "$HF_TOKEN_SECRET"
+        # we can add check to see if write permission is enabled
+        # we can also add flag to add this token as git credential
+
+    - name: Run the cron script/job
+      run: |
+        python server_cron_workflow.py
