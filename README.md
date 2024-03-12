@@ -78,6 +78,26 @@ Runs client side sscript which
 
 <h2>Server (who manages the federated learning)</h2>
 
+#### import and create a Seshu object
+```python
+from fedem.server import Seshu
+from transformers import TrainingArguments
+model = Seshu("/content/adapters.json", "/content/model_parameters.json")
+
+```
+
+#### pretrain!
+```python
+model.pretrain()
+```
+
+#### merge adapters and evaluate!
+```python
+model.model_merge_eval("mlsquare/pico_seshu_test", data = "mlsquare/SERVER_samantar_mixed_val")
+```
+
+
+
 #### Pre-reqs
 - has (big) GPU(s)
 - is familair with HuggingFace ecosystem (transfomers, peft, datasets, hub), databases, ML Enginneering in general
