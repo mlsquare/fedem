@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/seshu_logo.webp" width="200" height="200">
+  <img src="https://github.com/mlsquare/fedem/raw/main/assets/seshu_logo.webp" width="200" height="200">
 </p>
 
 <p align="center">
@@ -24,7 +24,7 @@ FedEm proposes a methodology to train a foundational model continuously, utilizi
 
 <h3> Continuous Relay Finetuning (CRF) </h3>
 <p align="center">
-  <img src="assets/CRF.png" width="350" height="350"><br>
+  <img src="https://raw.githubusercontent.com/mlsquare/fedem/main/assets/CRF.png" width="350" height="350"><br>
   <b>Continuous Relay Finetuning</b>
 </p>
 We introduce the concept of continuous relay finetuning (CRF), which employs parameter-efficient LoRA adapters in a relay-like fashion for training foundational models. In this method, a client conducts local training of an adapter on a specified dataset, followed by its transmission to a cloud server for subsequent download by another client for further finetuning. FedEm ensures the continuous training of adapters, which are subsequently merged with a foundational model to create an updated model. CRF facilitates community engagement throughout the training process and offers a transparent framework for tracking and continuously updating adapters as new data becomes available, thereby enhancing the adaptability and inclusivity of AI development efforts.
@@ -51,8 +51,8 @@ $ pip install fedem
 #### Examples
 | Filename  | Google Colab Support  |
 |---|---|
-| Fedem Client  |  <a href="https://colab.research.google.com/mlsquare/fedem/blob/dev-phase-2/notebooks/fedem_seshu_client.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" style="margin: 0 auto; display: block;"></a> |
-| Fedem Server  | <a href="https://colab.research.google.com/mlsquare/fedem/blob/dev-phase-2/notebooks/fedem_seshu_server.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" style="margin: 0 auto; display: block;"></a> |
+| Fedem Client  |  <a href="https://colab.research.google.com/mlsquare/fedem/blob/main/notebooks/fedem_seshu_client.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" style="margin: 0 auto; display: block;"></a> |
+| Fedem Server  | <a href="https://colab.research.google.com/mlsquare/fedem/blob/main/notebooks/fedem_seshu_server.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" style="margin: 0 auto; display: block;"></a> |
 
 
 #### Pre-reqs
