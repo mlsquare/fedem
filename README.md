@@ -11,6 +11,17 @@
 FedEm is an open-source library empowering community members to actively participate in the training and fine-tuning of foundational models, fostering transparency and equity in AI development. It aims to democratize the process, ensuring inclusivity and collective ownership in model training.
 </p>
 
+## Installation
+```bash
+$ pip install fedem
+```
+
+## Examples
+| Filename  | Google Colab Support  |
+|---|---|
+| Fedem Client  |  <a href="https://colab.research.google.com/github/mlsquare/fedem/blob/main/notebooks/fedem_seshu_client.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" style="margin: 0 auto; display: block;"></a> |
+| Fedem Server  | <a href="https://colab.research.google.com/github/mlsquare/fedem/blob/main/notebooks/fedem_seshu_server.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" style="margin: 0 auto; display: block;"></a> |
+
 <h2> Introduction </h2>
 The emergence of ChatGPT captured widespread attention, marking the first instance where individuals outside of technical circles could engage with Generative AI. This watershed moment sparked a surge of interest in cultivating secure applications of foundational models, alongside the exploration of domain-specific or community-driven alternatives to ChatGPT. Notably, the unveiling of LLaMA 2, an LLM generously open-sourced by Meta, catalyzed a plethora of advancements. This release fostered the creation of diverse tasks, tools, and resources, spanning from datasets to novel models and applications. Additionally, the introduction of Phi 2, an SLM by Microsoft, demonstrated that modestly-sized models could rival their larger counterparts, offering a compelling alternative that significantly reduces both training and operational costs.
 
@@ -40,21 +51,6 @@ Further, majority, with the exception of some Chinese LLMs, are English-centric 
 
 <h2>Client side </h2>
 
-It is as simple as it gets!
-
-#### installation
-```bash
-$ pip install fedem
-```
-
-
-#### Examples
-| Filename  | Google Colab Support  |
-|---|---|
-| Fedem Client  |  <a href="https://colab.research.google.com/github/mlsquare/fedem/blob/main/notebooks/fedem_seshu_client.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" style="margin: 0 auto; display: block;"></a> |
-| Fedem Server  | <a href="https://colab.research.google.com/github/mlsquare/fedem/blob/main/notebooks/fedem_seshu_server.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" style="margin: 0 auto; display: block;"></a> |
-
-
 #### Pre-reqs
  - has GPU, registers on HuggingFace/mlsquare for write access
  - familair with HuggingFace ecosystem (transfomers, peft, datasets, hub)
@@ -68,28 +64,6 @@ Runs client side sscript which
 
 
 <h2>Server (who manages the federated learning)</h2>
-
-#### import and create a Seshu object
-```python
-from fedem.server import Seshu
-from transformers import TrainingArguments
-model = Seshu("/content/adapters.json", "/content/model_parameters.json")
-
-```
-
-#### pretrain!
-```python
-model.pretrain()
-```
-
-#### merge adapters and evaluate!
-```python
-model.model_merge_eval(
-    adapters="mlsquare/pico_seshu_test",
-    data = "mlsquare/SERVER_samantar_mixed_val"
-)
-```
-
 
 #### Pre-reqs
 - has (big) GPU(s)
