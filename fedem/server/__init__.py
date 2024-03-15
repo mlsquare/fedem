@@ -4,13 +4,11 @@ import time
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from datasets import Dataset, DatasetDict, load_dataset
+from datasets import DatasetDict, load_dataset
 from huggingface_hub import HfApi, ModelFilter
-from peft import LoraConfig, PeftMixedModel, TaskType, get_peft_model  # type: ignore
+from peft import PeftMixedModel  # type: ignore
 from tqdm import tqdm
 from transformers import (
-    AutoModelForCausalLM,
-    AutoModelForSeq2SeqLM,
     AutoTokenizer,
     DataCollatorForLanguageModeling,
     Trainer,
@@ -18,7 +16,7 @@ from transformers import (
 )
 
 from ..configurations.mamba import MambaConfig
-from ..models.mamba import MambaForCausalLM, MambaModel
+from ..models.mamba import MambaForCausalLM
 from ..utils.huggingface import get_client_details, verify_user_with_org
 
 
@@ -85,7 +83,7 @@ class Seshu:
                 input_batch.append(input_ids)
         return {"input_ids": input_batch}
 
-    def pretrain(self, cpt_hours: int | None = None):
+    def pretrain(self, cpt_hours: int | None = None, debug: bool = False):
         if get_checkpoint_model(self.config_data["upload_path"]):
             model = MambaForCausalLM.from_pretrained(
                 self.config_data["upload_path"], token=self.hf_token
@@ -128,9 +126,26 @@ class Seshu:
                 if time.time() - start_time > cpt_hours * 3600:
                     break
 
-                trainer.train()
+                if debug:
+                    print("Trainer function will be called!")
+                else:
+                    trainer.train()
         else:
-            trainer.train()
+
+            if debug:
+                print("Trainer function will be called!")
+
+            else:
+                trainer.train()
+
+        # trainer.save_model(os.path.join(self.local_path, "local_copy"))
+
+        try:
+            response = model.push_to_hub(self.config_data["upload_path"])  # type: ignore
+            print("Model was uploaded to the hub.")
+            print(f"Commit link: {response.commit_url}")  # type: ignore
+        except:
+            print("Model was not uploaded to the hub due to an error.")
 
     def model_merge_eval(
         self, model_path, type_config="small", data="mlsquare/SERVER_samantar_mixed_val"

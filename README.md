@@ -46,23 +46,14 @@ It is as simple as it gets!
 ```bash
 $ pip install fedem
 ```
-#### import and create a Seshu object
-```python
-from fedem.client import Seshu
-from transformers import TrainingArguments
-model = Seshu(hf_tokenizer_path =  "google/byt5-large",
-              hf_token = "<TOKEN>",
-              hf_model_path =  "mlsquare/pico_seshu_test",
-              target_modules = ["<MODULE>"],
-              hf_adapter_path = "<ADAPTER>", 
-              hf_data_path = "mlsquare/CLIENT_samantar_mixed_train_val",)
 
-```
 
-#### train!
-```python
-model.train_lora()
-```
+#### Examples
+| Filename  | Google Colab Support  |
+|---|---|
+| Fedem Client  |  <a href="https://colab.research.google.com/mlsquare/fedem/blob/dev-phase-2/notebooks/fedem_seshu_client.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" style="margin: 0 auto; display: block;"></a> |
+| Fedem Server  | <a href="https://colab.research.google.com/mlsquare/fedem/blob/dev-phase-2/notebooks/fedem_seshu_server.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" style="margin: 0 auto; display: block;"></a> |
+
 
 #### Pre-reqs
  - has GPU, registers on HuggingFace/mlsquare for write access
@@ -93,9 +84,11 @@ model.pretrain()
 
 #### merge adapters and evaluate!
 ```python
-model.model_merge_eval("mlsquare/pico_seshu_test", data = "mlsquare/SERVER_samantar_mixed_val")
+model.model_merge_eval(
+    adapters="mlsquare/pico_seshu_test",
+    data = "mlsquare/SERVER_samantar_mixed_val"
+)
 ```
-
 
 
 #### Pre-reqs
