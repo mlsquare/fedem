@@ -6,16 +6,23 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Upload Python Package to PyPI
+name: package-python-code
 
-on: push
+# on: push
+on:
+  push:
+    branches:
+      - main
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   build-n-publish:
-    name: Build and publish Python 🐍 distributions 📦 to PyPI
+    name: Code to Package
     runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v3

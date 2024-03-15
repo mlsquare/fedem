@@ -1,11 +1,10 @@
 accelerate
-build
 datasets
 einops
 huggingface-hub
-ipywidgets
 jupyter
 peft
-pre-commit
+requests==2.27.1
 torch
 transformers
+wandb

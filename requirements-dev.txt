@@ -1,0 +1,7 @@
+build
+ghp-import
+ipywidgets
+pre-commit
+pytest
+sphinx
+sphinx_rtd_theme
