@@ -51,8 +51,8 @@ $ pip install fedem
 #### Examples
 | Filename  | Google Colab Support  |
 |---|---|
-| Fedem Client  |  <a href="https://colab.research.google.com/mlsquare/fedem/blob/main/notebooks/fedem_seshu_client.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" style="margin: 0 auto; display: block;"></a> |
-| Fedem Server  | <a href="https://colab.research.google.com/mlsquare/fedem/blob/main/notebooks/fedem_seshu_server.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" style="margin: 0 auto; display: block;"></a> |
+| Fedem Client  |  <a href="https://colab.research.google.com/github/mlsquare/fedem/blob/main/notebooks/fedem_seshu_client.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" style="margin: 0 auto; display: block;"></a> |
+| Fedem Server  | <a href="https://colab.research.google.com/github/mlsquare/fedem/blob/main/notebooks/fedem_seshu_server.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" style="margin: 0 auto; display: block;"></a> |
 
 
 #### Pre-reqs
