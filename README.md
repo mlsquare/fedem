@@ -1,15 +1,35 @@
+<div align="center">
 <p align="center">
   <img src="https://github.com/mlsquare/fedem/raw/main/assets/seshu_logo.webp" width="200" height="200">
 </p>
 
-<p align="center">
- <h2> <b>FedEm - A decentralized framework to train foundational models</b></h2>
-</p>
+# Fedem
 
-<p align="center">
+### A decentralized framework to train foundational models
+
+<div align="center">
+  
+  <a href="https://colab.research.google.com/github/mlsquare/fedem/blob/main/notebooks/fedem_seshu_client.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a>
+  <a href="https://github.com/mlsquare/fedem/actions/workflows/python-publish.yml"><img src="https://github.com/mlsquare/fedem/actions/workflows/python-publish.yml/badge.svg"></a>
+
+</div>
+
+<div align="center">
+
+  <a href="https://github.com/mlsquare/fedem/actions/workflows/cron-huggingface-server.yml"><img src="https://github.com/mlsquare/fedem/actions/workflows/cron-huggingface-server.yml/badge.svg"></a>
+  <a href="https://github.com/mlsquare/fedem/actions/workflows/sphinx.yml"><img src="https://github.com/mlsquare/fedem/actions/workflows/sphinx.yml/badge.svg"></a>
+  <a href="https://github.com/mlsquare/fedem/actions/workflows/github-code-scanning/codeql"><img src="https://github.com/mlsquare/fedem/actions/workflows/github-code-scanning/codeql/badge.svg"></a>
+  <a href="https://github.com/mlsquare/fedem/actions/workflows/pages/pages-build-deployment"><img src="https://github.com/mlsquare/fedem/actions/workflows/pages/pages-build-deployment/badge.svg"></a>
+  
+</div>
+</div>
+
+
+---
 
 FedEm is an open-source library empowering community members to actively participate in the training and fine-tuning of foundational models, fostering transparency and equity in AI development. It aims to democratize the process, ensuring inclusivity and collective ownership in model training.
-</p>
+
+---
 
 ## Installation
 ```bash
