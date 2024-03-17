@@ -24,6 +24,28 @@ class MambaConfig(PretrainedConfig):
         initializer_range=0.02,
         **kwargs,
     ):
+        """
+        Configuration class for Mamba model.
+
+        Args:
+            vocab_size (int, optional): Vocabulary size. Defaults to 50277.
+            d_state (int, optional): State dimension. Defaults to 16.
+            d_model (int, optional): Model dimension. Defaults to 2560.
+            d_conv (int, optional): Convolution dimension. Defaults to 4.
+            expand (int, optional): Expansion factor. Defaults to 2.
+            conv_bias (bool, optional): Convolution bias flag. Defaults to True.
+            bias (bool, optional): Bias flag. Defaults to False.
+            n_layer (int, optional): Number of layers. Defaults to 64.
+            dt_rank (int | str, optional): Tensor rank or 'auto' for automatic computation. Defaults to 'auto'.
+            pad_vocab_size_multiple (int, optional): Vocabulary size multiple for padding. Defaults to 8.
+            initializer_range (float, optional): Initializer range. Defaults to 0.02.
+            **kwargs: Additional keyword arguments.
+
+        Attributes:
+            model_type (str): Model type identifier.
+            d_inner (int): Inner dimension based on expansion and model dimension ratio.
+
+        """
         self.vocab_size = vocab_size
         self.n_layer = n_layer
         self.conv_bias = conv_bias

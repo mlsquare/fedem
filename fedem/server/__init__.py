@@ -225,6 +225,17 @@ def create_JSON(value):
 
 
 def get_data(data_path, fraction=0.01):
+    """
+    Load a fraction of the dataset from the specified path and return it.
+
+    Args:
+        data_path (str): Path to the dataset.
+        fraction (float, optional): Fraction of the dataset to load. Defaults to 0.01.
+
+    Returns:
+        datasets.Dataset: Loaded dataset.
+
+    """
     data = load_dataset(data_path)['train'].shuffle()  # type: ignore
     data = data.select(list(range(int(len(data) * fraction))))
     print("data fetched")
@@ -263,6 +274,16 @@ def load_data(data_path):
 
 
 def make_config(json):
+    """
+    Create a MambaConfig object based on the provided JSON data.
+
+    Args:
+        json (dict): JSON data containing configuration parameters.
+
+    Returns:
+        MambaConfig: Created MambaConfig object.
+
+    """
     config = MambaConfig(
         vocab_size=json["vocab_size"],
         d_model=json["d_model"],
@@ -279,6 +300,16 @@ def make_config(json):
 
 
 def get_checkpoint_model(model_name):
+    """
+    Get a checkpoint model by model name from an organization.
+
+    Args:
+        model_name (str): Name of the model.
+
+    Returns:
+        str | False: Model ID if found, False otherwise.
+
+    """
     def get_models_by_organization(org_id, model_name):
         api = HfApi()
         new_filter = ModelFilter(tags="mamba")
@@ -297,6 +328,18 @@ def get_checkpoint_model(model_name):
 
 class MambaTrainer(Trainer):
     def compute_loss(self, model, inputs, return_outputs=False):
+        """
+        Compute the loss for the training process.
+
+        Args:
+            model: The PyTorch model.
+            inputs: Input data.
+            return_outputs (bool): Whether to return the computed loss.
+
+        Returns:
+            torch.Tensor: Computed language modeling loss.
+            
+        """
         input_ids = inputs.pop("input_ids")
         lm_logits = model(input_ids)[0]
         labels = input_ids.to(lm_logits.device)

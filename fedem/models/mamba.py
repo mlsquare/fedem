@@ -20,7 +20,19 @@ from ..configurations.mamba import MambaConfig
 
 
 class MambaRMSNorm(nn.Module):
+    """
+    Root Mean Square Normalization module for Mamba model.
+
+    Args:
+        d_model (int): Model dimension.
+        eps (float, optional): Epsilon value for numerical stability. Defaults to 1e-5.
+
+    """
     def __init__(self, d_model: int, eps: float = 1e-5):
+        """
+        Initialize MambaRMSNorm module.
+
+        """
         super().__init__()
         self.eps = eps
         self.weight = nn.Parameter(torch.ones(d_model))
@@ -31,8 +43,19 @@ class MambaRMSNorm(nn.Module):
 
 
 class MambaBlock(nn.Module):
+    """
+    Mamba block module as described in the Mamba paper.
+
+    Args:
+        config (MambaConfig): Mamba model configuration.
+
+    """
     def __init__(self, config: MambaConfig):
-        """A single Mamba block, as described in Figure 3 in Section 3.4 in the Mamba paper [1]."""
+        """
+        Initialize MambaBlock module.
+        A single Mamba block, as described in Figure 3 in Section 3.4 in the Mamba paper [1].
+
+        """
         super().__init__()
         self.config = config
 
@@ -188,12 +211,20 @@ class MambaBlock(nn.Module):
 
 
 class MambaPreTrainedModel(PreTrainedModel):
+    """
+    Base class for pre-trained Mamba models.
+
+    """
     config_class = MambaConfig
     base_model_prefix = "model"
     supports_gradient_checkpointing = True
     _no_split_modules = ["MambaBlock"]
 
     def _init_weights(self, module):
+        """
+        Initialize weights for Mamba model.
+
+        """
         std = 0.02
         if isinstance(module, (nn.Linear, nn.Conv1d)):
             module.weight.data.normal_(mean=0.0, std=std)
@@ -206,6 +237,13 @@ class MambaPreTrainedModel(PreTrainedModel):
 
 
 class MambaModel(MambaPreTrainedModel):
+    """
+    Mamba model architecture consisting of MambaBlocks.
+    
+    Args:
+        config (MambaConfig): Mamba model configuration.
+
+    """
     def __init__(self, config: MambaConfig):
         """Full Mamba model.
         Mamba model decoder consisting of *config.n_layer* layers. Each layer is a [`MambaBlock`]
@@ -249,9 +287,20 @@ class MambaModel(MambaPreTrainedModel):
 
 
 class MambaForCausalLM(MambaPreTrainedModel):
+    """
+    Mamba model for Causal Language Modeling.
+    
+    Args:
+        config (MambaConfig): Mamba model configuration.
+
+    """
     _tied_weights_keys = ["lm_head.weight"]
 
     def __init__(self, config):
+        """
+        Initialize MambaForCausalLM module.
+
+        """
         super().__init__(config)
         self.model = MambaModel(config)
         self.vocab_size = config.vocab_size

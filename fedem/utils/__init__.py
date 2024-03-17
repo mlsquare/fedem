@@ -12,6 +12,16 @@ from ..models.mamba import MambaForCausalLM
 
 
 def load_json(json_path):
+    """
+    Load JSON data from a file.
+
+    Args:
+        json_path (str): Path to the JSON file.
+
+    Returns:
+        dict: Loaded JSON data.
+
+    """
     with open(json_path, "r") as json_file:
         loaded_data = json.load(json_file)
     return loaded_data
@@ -19,7 +29,11 @@ def load_json(json_path):
 
 def print_trainable_parameters(model):
     """
-    Prints the number of trainable parameters in the model.
+    Print the number of trainable parameters in the model.
+
+    Args:
+        model: Model to print trainable parameters for.
+
     """
     trainable_params = 0
     all_param = 0
@@ -33,6 +47,16 @@ def print_trainable_parameters(model):
 
 
 def load_data(data_path):
+    """
+    Load dataset from a given path and split it into train and validation sets.
+
+    Args:
+        data_path (str): Path to the dataset.
+
+    Returns:
+        DatasetDict: Dictionary containing train and validation datasets.
+
+    """
     data = load_dataset(data_path).shuffle()
     return DatasetDict(
         {
@@ -43,14 +67,44 @@ def load_data(data_path):
 
 
 def load_model_pretrained(config):
+    """
+    Load a pre-trained model based on the provided configuration.
+
+    Args:
+        config: Model configuration.
+
+    Returns:
+        MambaForCausalLM: Loaded pre-trained model.
+
+    """
     return MambaForCausalLM.from_pretrained(config)
 
 
 def load_tokenizer(path):
+    """
+    Load tokenizer from a given path.
+
+    Args:
+        path (str): Path to the tokenizer.
+
+    Returns:
+        AutoTokenizer: Loaded tokenizer.
+
+    """
     return AutoTokenizer.from_pretrained(path)
 
 
 def make_config(json):
+    """
+    Create a MambaConfig object based on the provided JSON data.
+
+    Args:
+        json (dict): JSON data containing configuration parameters.
+
+    Returns:
+        MambaConfig: Created configuration object.
+
+    """
     config = MambaConfig(
         vocab_size=json["vocab_size"],
         d_model=json["d_model"],
@@ -67,6 +121,16 @@ def make_config(json):
 
 
 def split_data(data):
+    """
+    Split dataset into train and validation sets.
+
+    Args:
+        data (Dataset): Dataset to split.
+
+    Returns:
+        DatasetDict: Dictionary containing train and validation datasets.
+
+    """
     train_size = int(len(data) * 0.8)
     valid_size = len(data) - train_size
 
@@ -77,11 +141,33 @@ def split_data(data):
 
 
 def load_model(config):
+    """
+    Load a model based on the provided configuration.
+
+    Args:
+        config: Model configuration.
+
+    Returns:
+        MambaForCausalLM: Loaded model.
+
+    """
     config = make_config(config)
     return MambaForCausalLM(config)
 
 
 def load_model_with_LoRA(model, target_modules, local_path):
+    """
+    Load a model with LoRA (Low-Rank Adaptation) applied.
+
+    Args:
+        model: Base model to apply LoRA to.
+        target_modules: List of target modules.
+        local_path (str): Local path to save the adapter.
+
+    Returns:
+        MambaForCausalLM: Model with LoRA applied.
+
+    """
     config = LoraConfig(target_modules=target_modules)
     m1 = get_peft_model(model, config)
     m1.print_trainable_parameters()
@@ -90,6 +176,16 @@ def load_model_with_LoRA(model, target_modules, local_path):
 
 
 def get_checkpoint_model(model_name):
+    """
+
+    Get the checkpoint model based on the model name and organization ID.
+
+    Args:
+        model_name (str): Name of the model.
+
+    Returns:
+        str | bool: Model ID if found, False otherwise.
+    """
     def get_models_by_organization(org_id, model_name):
         api = HfApi()
         new_filter = ModelFilter(tags="mamba")
@@ -107,6 +203,10 @@ def get_checkpoint_model(model_name):
 
 
 def make_config(json):
+    """
+    Make Config
+
+    """
     config = MambaConfig(
         vocab_size=json["vocab_size"],
         d_model=json["d_model"],

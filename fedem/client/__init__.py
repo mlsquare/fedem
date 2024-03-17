@@ -28,6 +28,19 @@ class Seshu:
         org_id: str = "mlsquare",
         hf_token: str | None = None,
     ):
+        """
+        Initialize a Seshu object.
+
+        Args:
+            hf_model_path (str): Path to the HF model.
+            hf_tokenizer_path (str): Path to the HF tokenizer.
+            target_modules (list[str]): List of target modules.
+            hf_adapter_path (str): Path to the HF adapter.
+            hf_data_path (str): Path to the HF data.
+            org_id (str, optional): Organization ID. Defaults to "mlsquare".
+            hf_token (str | None, optional): HF token. Defaults to None.
+
+        """
 
         self.hf_model_path = hf_model_path
         self.hf_tokenizer_path = hf_tokenizer_path
@@ -122,6 +135,16 @@ class Seshu:
         self.tokenizer = AutoTokenizer.from_pretrained(hf_tokenizer_path)
 
     def tokenize(self, data_to_tokenize):
+        """
+        Tokenize the input data.
+
+        Args:
+            data_to_tokenize: Data to be tokenized.
+
+        Returns:
+            dict: Tokenized input data.
+
+        """
 
         outputs = self.tokenizer(
             data_to_tokenize["tgt"],
@@ -147,6 +170,13 @@ class Seshu:
         training_args: TrainingArguments | None = None,
         debug: bool = False,
     ):
+        """
+        Train the model using LoRA.
+
+        Args:
+            training_args (TrainingArguments | None, optional): Training arguments. Defaults to None.
+            debug (bool, optional): Debug mode flag. Defaults to False.
+            """
 
         if training_args is None:
             self.training_args = TrainingArguments(
@@ -198,6 +228,10 @@ class Seshu:
         trainer.save_model(os.path.join(self.local_path, "local_copy"))
 
     def push_to_hub(self):
+        """
+            Push files to the Hugging Face Hub.
+            
+        """
         response: CommitInfo = self.api.upload_folder(
             folder_path=os.path.join(self.local_path, "local_copy"),
             repo_id=self.repo_name,
