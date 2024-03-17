@@ -31,7 +31,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # python -m pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install uv
           uv pip install -r requirements-dev.txt
           uv pip install fedem
