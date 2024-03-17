@@ -8,19 +8,19 @@
 ### A decentralized framework to train foundational models
 
 <div align="center">
-  
-  <a href="https://colab.research.google.com/github/mlsquare/fedem/blob/main/notebooks/fedem_seshu_client.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a>
-  <a href="https://github.com/mlsquare/fedem/actions/workflows/python-publish.yml"><img src="https://github.com/mlsquare/fedem/actions/workflows/python-publish.yml/badge.svg"></a>
-
-</div>
-
-<div align="center">
 
   <a href="https://github.com/mlsquare/fedem/actions/workflows/cron-huggingface-server.yml"><img src="https://github.com/mlsquare/fedem/actions/workflows/cron-huggingface-server.yml/badge.svg"></a>
   <a href="https://github.com/mlsquare/fedem/actions/workflows/sphinx.yml"><img src="https://github.com/mlsquare/fedem/actions/workflows/sphinx.yml/badge.svg"></a>
   <a href="https://github.com/mlsquare/fedem/actions/workflows/github-code-scanning/codeql"><img src="https://github.com/mlsquare/fedem/actions/workflows/github-code-scanning/codeql/badge.svg"></a>
   <a href="https://github.com/mlsquare/fedem/actions/workflows/pages/pages-build-deployment"><img src="https://github.com/mlsquare/fedem/actions/workflows/pages/pages-build-deployment/badge.svg"></a>
   
+</div>
+
+<div align="center">
+  
+  <a href="https://colab.research.google.com/github/mlsquare/fedem/blob/main/notebooks/fedem_seshu_client.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a>
+  <a href="https://github.com/mlsquare/fedem/actions/workflows/python-publish.yml"><img src="https://github.com/mlsquare/fedem/actions/workflows/python-publish.yml/badge.svg"></a>
+
 </div>
 </div>
 
