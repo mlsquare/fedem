@@ -4,20 +4,20 @@ import setuptools
 
 setuptools.setup(
     name="fedem",
-    version="0.0.6",
-    description="This repository is still in work in progress. It will be a federated learning library.",
+    version="0.0.7",
+    description="A decentralized framework to train foundational models",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
-    url="https://github.com/mlsquare/",
-    author="Seshu",
-    author_email="seshu@mlsquare.com",
+    url="https://github.com/mlsquare/fedem",
+    author="MLSquare",
+    author_email="mail@mlsquare.com",
     license="MIT",
     project_urls={
-        "Documentation": "https://github.com/mlsquare/",
-        "Source": "https://github.com/mlsquare/seshu/",
+        "Documentation": "https://mlsquare.github.io/fedem/",
+        "Source": "https://github.com/mlsquare/fedem/",
     },
     classifiers=[
-        "Development Status :: 1 - Planning",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 3.10",
         "License :: OSI Approved :: MIT License",

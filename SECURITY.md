@@ -2,7 +2,7 @@
 
 We don't have any stable version yet. We are planning on bringing it for `v0.1`.
 
-The current version on PyPI is `v0.0.4`.
+The current version on PyPI is `v0.0.7`.
 
 If you have found any security vulnerability, Please raise an issue (and would be great, if you can resolve it through a PR).
 

@@ -9,7 +9,7 @@
 project = 'fedem'
 copyright = '2024, mlsquare'
 author = 'mlsquare'
-release = 'v0.0.4'
+release = 'v0.0.7'
 
 # -- General configuration ---------------------------------------------------
 
