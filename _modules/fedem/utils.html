@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fedem.utils &mdash; fedem v0.0.7 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=401b779c"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            fedem
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">fedem</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fedem</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">fedem.utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for fedem.utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># type: ignore</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">DatasetDict</span><span class="p">,</span> <span class="n">load_dataset</span>
+<span class="kn">from</span> <span class="nn">peft</span> <span class="kn">import</span> <span class="n">LoraConfig</span><span class="p">,</span> <span class="n">get_peft_model</span>
+<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoTokenizer</span>
+
+<span class="kn">from</span> <span class="nn">..configurations.mamba</span> <span class="kn">import</span> <span class="n">MambaConfig</span>
+<span class="kn">from</span> <span class="nn">..models.mamba</span> <span class="kn">import</span> <span class="n">MambaForCausalLM</span>
+
+
+<div class="viewcode-block" id="load_json">
+<a class="viewcode-back" href="../../fedem.utils.html#fedem.utils.load_json">[docs]</a>
+<span class="k">def</span> <span class="nf">load_json</span><span class="p">(</span><span class="n">json_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load JSON data from a file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        json_path (str): Path to the JSON file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Loaded JSON data.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
+        <span class="n">loaded_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">loaded_data</span></div>
+
+
+
+<div class="viewcode-block" id="print_trainable_parameters">
+<a class="viewcode-back" href="../../fedem.utils.html#fedem.utils.print_trainable_parameters">[docs]</a>
+<span class="k">def</span> <span class="nf">print_trainable_parameters</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Print the number of trainable parameters in the model.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model: Model to print trainable parameters for.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">trainable_params</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">all_param</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">():</span>
+        <span class="n">all_param</span> <span class="o">+=</span> <span class="n">param</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">:</span>
+            <span class="n">trainable_params</span> <span class="o">+=</span> <span class="n">param</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;trainable params: </span><span class="si">{</span><span class="n">trainable_params</span><span class="si">}</span><span class="s2"> || all params: </span><span class="si">{</span><span class="n">all_param</span><span class="si">}</span><span class="s2"> || trainable%: </span><span class="si">{</span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">trainable_params</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">all_param</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="load_data">
+<a class="viewcode-back" href="../../fedem.utils.html#fedem.utils.load_data">[docs]</a>
+<span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="n">data_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load dataset from a given path and split it into train and validation sets.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data_path (str): Path to the dataset.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        DatasetDict: Dictionary containing train and validation datasets.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span><span class="o">.</span><span class="n">shuffle</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">DatasetDict</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)))),</span>
+            <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;valid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;valid&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)))),</span>
+        <span class="p">}</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="load_model_pretrained">
+<a class="viewcode-back" href="../../fedem.utils.html#fedem.utils.load_model_pretrained">[docs]</a>
+<span class="k">def</span> <span class="nf">load_model_pretrained</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load a pre-trained model based on the provided configuration.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config: Model configuration.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        MambaForCausalLM: Loaded pre-trained model.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">MambaForCausalLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="load_tokenizer">
+<a class="viewcode-back" href="../../fedem.utils.html#fedem.utils.load_tokenizer">[docs]</a>
+<span class="k">def</span> <span class="nf">load_tokenizer</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load tokenizer from a given path.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path (str): Path to the tokenizer.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        AutoTokenizer: Loaded tokenizer.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">make_config</span><span class="p">(</span><span class="n">json</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a MambaConfig object based on the provided JSON data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        json (dict): JSON data containing configuration parameters.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        MambaConfig: Created configuration object.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">MambaConfig</span><span class="p">(</span>
+        <span class="n">vocab_size</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;vocab_size&quot;</span><span class="p">],</span>
+        <span class="n">d_model</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;d_model&quot;</span><span class="p">],</span>
+        <span class="n">d_conv</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;d_conv&quot;</span><span class="p">],</span>
+        <span class="n">expand</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;expand&quot;</span><span class="p">],</span>
+        <span class="n">conv_bias</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;conv_bias&quot;</span><span class="p">],</span>
+        <span class="n">bias</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;bias&quot;</span><span class="p">],</span>
+        <span class="n">n_layer</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;n_layer&quot;</span><span class="p">],</span>
+        <span class="n">dt_rank</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;dt_rank&quot;</span><span class="p">],</span>
+        <span class="n">pad_vocab_size_multiple</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;pad_vocab_size_multiple&quot;</span><span class="p">],</span>
+        <span class="n">initializer_range</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;initializer_range&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">config</span>
+
+
+<div class="viewcode-block" id="split_data">
+<a class="viewcode-back" href="../../fedem.utils.html#fedem.utils.split_data">[docs]</a>
+<span class="k">def</span> <span class="nf">split_data</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Split dataset into train and validation sets.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (Dataset): Dataset to split.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        DatasetDict: Dictionary containing train and validation datasets.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">train_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.8</span><span class="p">)</span>
+    <span class="n">valid_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="n">train_size</span>
+
+    <span class="n">ds_train</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">train_size</span><span class="p">)))</span>
+    <span class="n">ds_valid</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">train_size</span><span class="p">,</span> <span class="n">train_size</span> <span class="o">+</span> <span class="n">valid_size</span><span class="p">)))</span>
+
+    <span class="k">return</span> <span class="n">DatasetDict</span><span class="p">({</span><span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">ds_train</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="n">ds_valid</span><span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="load_model">
+<a class="viewcode-back" href="../../fedem.utils.html#fedem.utils.load_model">[docs]</a>
+<span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load a model based on the provided configuration.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config: Model configuration.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        MambaForCausalLM: Loaded model.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">make_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">MambaForCausalLM</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="load_model_with_LoRA">
+<a class="viewcode-back" href="../../fedem.utils.html#fedem.utils.load_model_with_LoRA">[docs]</a>
+<span class="k">def</span> <span class="nf">load_model_with_LoRA</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">target_modules</span><span class="p">,</span> <span class="n">local_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load a model with LoRA (Low-Rank Adaptation) applied.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model: Base model to apply LoRA to.</span>
+<span class="sd">        target_modules: List of target modules.</span>
+<span class="sd">        local_path (str): Local path to save the adapter.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        MambaForCausalLM: Model with LoRA applied.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">LoraConfig</span><span class="p">(</span><span class="n">target_modules</span><span class="o">=</span><span class="n">target_modules</span><span class="p">)</span>
+    <span class="n">m1</span> <span class="o">=</span> <span class="n">get_peft_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+    <span class="n">m1</span><span class="o">.</span><span class="n">print_trainable_parameters</span><span class="p">()</span>
+    <span class="n">m1</span><span class="o">.</span><span class="n">save_pretrained</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="s2">&quot;adapter&quot;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">m1</span></div>
+
+
+
+<div class="viewcode-block" id="get_checkpoint_model">
+<a class="viewcode-back" href="../../fedem.utils.html#fedem.utils.get_checkpoint_model">[docs]</a>
+<span class="k">def</span> <span class="nf">get_checkpoint_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Get the checkpoint model based on the model name and organization ID.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model_name (str): Name of the model.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str | bool: Model ID if found, False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">get_models_by_organization</span><span class="p">(</span><span class="n">org_id</span><span class="p">,</span> <span class="n">model_name</span><span class="p">):</span>
+        <span class="n">api</span> <span class="o">=</span> <span class="n">HfApi</span><span class="p">()</span>
+        <span class="n">new_filter</span> <span class="o">=</span> <span class="n">ModelFilter</span><span class="p">(</span><span class="n">tags</span><span class="o">=</span><span class="s2">&quot;mamba&quot;</span><span class="p">)</span>
+        <span class="n">models</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">list_models</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">new_filter</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">org_id</span> <span class="ow">in</span> <span class="n">i</span><span class="o">.</span><span class="n">modelId</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="n">i</span><span class="o">.</span><span class="n">modelId</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">i</span><span class="o">.</span><span class="n">modelId</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">org_id</span> <span class="o">=</span> <span class="s2">&quot;mlsquare&quot;</span>
+    <span class="k">return</span> <span class="n">get_models_by_organization</span><span class="p">(</span><span class="n">org_id</span><span class="p">,</span> <span class="n">model_name</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="make_config">
+<a class="viewcode-back" href="../../fedem.utils.html#fedem.utils.make_config">[docs]</a>
+<span class="k">def</span> <span class="nf">make_config</span><span class="p">(</span><span class="n">json</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Make Config</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">MambaConfig</span><span class="p">(</span>
+        <span class="n">vocab_size</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;vocab_size&quot;</span><span class="p">],</span>
+        <span class="n">d_model</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;d_model&quot;</span><span class="p">],</span>
+        <span class="n">d_conv</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;d_conv&quot;</span><span class="p">],</span>
+        <span class="n">expand</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;expand&quot;</span><span class="p">],</span>
+        <span class="n">conv_bias</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;conv_bias&quot;</span><span class="p">],</span>
+        <span class="n">bias</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;bias&quot;</span><span class="p">],</span>
+        <span class="n">n_layer</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;n_layer&quot;</span><span class="p">],</span>
+        <span class="n">dt_rank</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;dt_rank&quot;</span><span class="p">],</span>
+        <span class="n">pad_vocab_size_multiple</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;pad_vocab_size_multiple&quot;</span><span class="p">],</span>
+        <span class="n">initializer_range</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;initializer_range&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">config</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, mlsquare.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

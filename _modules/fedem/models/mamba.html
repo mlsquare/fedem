@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fedem.models.mamba &mdash; fedem v0.0.7 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=401b779c"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            fedem
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">fedem</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">fedem</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">fedem.models.mamba</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for fedem.models.mamba</h1><div class="highlight"><pre>
+<span></span><span class="c1"># type: ignore</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">from</span> <span class="nn">einops</span> <span class="kn">import</span> <span class="n">einsum</span><span class="p">,</span> <span class="n">rearrange</span><span class="p">,</span> <span class="n">repeat</span>
+<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">CrossEntropyLoss</span>
+<span class="kn">from</span> <span class="nn">transformers.modeling_outputs</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BaseModelOutputWithPast</span><span class="p">,</span>
+    <span class="n">CausalLMOutputWithPast</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">transformers.modeling_utils</span> <span class="kn">import</span> <span class="n">PreTrainedModel</span>
+
+<span class="kn">from</span> <span class="nn">..configurations.mamba</span> <span class="kn">import</span> <span class="n">MambaConfig</span>
+
+<span class="c1"># Dear contributors of the https://github.com/johnma2006/mamba-minimal/tree/master repository,</span>
+<span class="c1"># special thanks to Albert Gu and Tri Dao for their articles. (https://arxiv.org/abs/2312.00752)</span>
+
+
+<div class="viewcode-block" id="MambaRMSNorm">
+<a class="viewcode-back" href="../../../fedem.models.html#fedem.models.mamba.MambaRMSNorm">[docs]</a>
+<span class="k">class</span> <span class="nc">MambaRMSNorm</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Root Mean Square Normalization module for Mamba model.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        d_model (int): Model dimension.</span>
+<span class="sd">        eps (float, optional): Epsilon value for numerical stability. Defaults to 1e-5.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d_model</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize MambaRMSNorm module.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">=</span> <span class="n">eps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">d_model</span><span class="p">))</span>
+
+<div class="viewcode-block" id="MambaRMSNorm.forward">
+<a class="viewcode-back" href="../../../fedem.models.html#fedem.models.mamba.MambaRMSNorm.forward">[docs]</a>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">rsqrt</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span>
+        <span class="k">return</span> <span class="n">output</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MambaBlock">
+<a class="viewcode-back" href="../../../fedem.models.html#fedem.models.mamba.MambaBlock">[docs]</a>
+<span class="k">class</span> <span class="nc">MambaBlock</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mamba block module as described in the Mamba paper.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config (MambaConfig): Mamba model configuration.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">MambaConfig</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize MambaBlock module.</span>
+<span class="sd">        A single Mamba block, as described in Figure 3 in Section 3.4 in the Mamba paper [1].</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">d_model</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">d_inner</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">bias</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv1d</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv1d</span><span class="p">(</span>
+            <span class="n">in_channels</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">d_inner</span><span class="p">,</span>
+            <span class="n">out_channels</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">d_inner</span><span class="p">,</span>
+            <span class="n">bias</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">conv_bias</span><span class="p">,</span>
+            <span class="n">kernel_size</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">d_conv</span><span class="p">,</span>
+            <span class="n">groups</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">d_inner</span><span class="p">,</span>
+            <span class="n">padding</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">d_conv</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># x_proj takes in `x` and outputs the input-specific Δ, B, C</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">d_inner</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">dt_rank</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">d_state</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+        <span class="c1"># dt_proj projects Δ from dt_rank to d_in</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dt_proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">dt_rank</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">d_inner</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">A</span> <span class="o">=</span> <span class="n">repeat</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">d_state</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;n -&gt; d n&#39;</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">d_inner</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">A_log</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">D</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">d_inner</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">d_inner</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">d_model</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">bias</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">norm</span> <span class="o">=</span> <span class="n">MambaRMSNorm</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">d_model</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MambaBlock.forward">
+<a class="viewcode-back" href="../../../fedem.models.html#fedem.models.mamba.MambaBlock.forward">[docs]</a>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mamba block forward. This looks the same as Figure 3 in Section 3.4 in the Mamba paper [1].</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x: shape (b, l, d)    (See Glossary at top for definitions of b, l, d_in, n...)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            output: shape (b, l, d)</span>
+
+<span class="sd">        Official Implementation:</span>
+<span class="sd">            class Mamba, https://github.com/state-spaces/mamba/blob/main/mamba_ssm/modules/mamba_simple.py#L119</span>
+<span class="sd">            mamba_inner_ref(), https://github.com/state-spaces/mamba/blob/main/mamba_ssm/ops/selective_scan_interface.py#L311</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">x_copy</span> <span class="o">=</span> <span class="n">x</span>  <span class="c1"># There was a separate class for residual, I deleted that part and added it here.</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x_and_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_proj</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># shape (b, l, 2 * d_in)</span>
+        <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span> <span class="o">=</span> <span class="n">x_and_res</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+            <span class="n">split_size</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">d_inner</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">d_inner</span><span class="p">],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span>
+        <span class="p">)</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">rearrange</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;b l d_in -&gt; b d_in l&#39;</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv1d</span><span class="p">(</span><span class="n">x</span><span class="p">)[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="n">l</span><span class="p">]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">rearrange</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;b d_in l -&gt; b l d_in&#39;</span><span class="p">)</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">silu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">*</span> <span class="n">F</span><span class="o">.</span><span class="n">silu</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_proj</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">+</span> <span class="n">x_copy</span>
+
+        <span class="k">return</span> <span class="n">output</span></div>
+
+
+<div class="viewcode-block" id="MambaBlock.ssm">
+<a class="viewcode-back" href="../../../fedem.models.html#fedem.models.mamba.MambaBlock.ssm">[docs]</a>
+    <span class="k">def</span> <span class="nf">ssm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs the SSM. See:</span>
+<span class="sd">            - Algorithm 2 in Section 3.2 in the Mamba paper [1]</span>
+<span class="sd">            - run_SSM(A, B, C, u) in The Annotated S4 [2]</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x: shape (b, l, d_in)    (See Glossary at top for definitions of b, l, d_in, n...)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            output: shape (b, l, d_in)</span>
+
+<span class="sd">        Official Implementation:</span>
+<span class="sd">            mamba_inner_ref(), https://github.com/state-spaces/mamba/blob/main/mamba_ssm/ops/selective_scan_interface.py#L311</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="p">(</span><span class="n">d_in</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A_log</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="c1"># Compute ∆ A B C D, the state space parameters.</span>
+        <span class="c1">#     A, D are input independent (see Mamba paper [1] Section 3.5.2 &quot;Interpretation of A&quot; for why A isn&#39;t selective)</span>
+        <span class="c1">#     ∆, B, C are input-dependent (this is a key difference between Mamba and the linear time invariant S4,</span>
+        <span class="c1">#                                  and is why Mamba is called **selective** state spaces)</span>
+
+        <span class="n">A</span> <span class="o">=</span> <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A_log</span><span class="o">.</span><span class="n">float</span><span class="p">())</span>  <span class="c1"># shape (d_in, n)</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+
+        <span class="n">x_dbl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_proj</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># (b, l, dt_rank + 2*n)</span>
+
+        <span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span> <span class="o">=</span> <span class="n">x_dbl</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+            <span class="n">split_size</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">dt_rank</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span>
+        <span class="p">)</span>  <span class="c1"># delta: (b, l, dt_rank). B, C: (b, l, n)</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softplus</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt_proj</span><span class="p">(</span><span class="n">delta</span><span class="p">))</span>  <span class="c1"># (b, l, d_in)</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selective_scan</span><span class="p">(</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">D</span>
+        <span class="p">)</span>  <span class="c1"># This is similar to run_SSM(A, B, C, u) in The Annotated S4 [2]</span>
+
+        <span class="k">return</span> <span class="n">y</span></div>
+
+
+<div class="viewcode-block" id="MambaBlock.selective_scan">
+<a class="viewcode-back" href="../../../fedem.models.html#fedem.models.mamba.MambaBlock.selective_scan">[docs]</a>
+    <span class="k">def</span> <span class="nf">selective_scan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">D</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Does selective scan algorithm. See:</span>
+<span class="sd">            - Section 2 State Space Models in the Mamba paper [1]</span>
+<span class="sd">            - Algorithm 2 in Section 3.2 in the Mamba paper [1]</span>
+<span class="sd">            - run_SSM(A, B, C, u) in The Annotated S4 [2]</span>
+
+<span class="sd">        This is the classic discrete state space formula:</span>
+<span class="sd">            x(t + 1) = Ax(t) + Bu(t)</span>
+<span class="sd">            y(t)     = Cx(t) + Du(t)</span>
+<span class="sd">        except B and C (and the step size delta, which is used for discretization) are dependent on the input x(t).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            u: shape (b, l, d_in)    (See Glossary at top for definitions of b, l, d_in, n...)</span>
+<span class="sd">            delta: shape (b, l, d_in)</span>
+<span class="sd">            A: shape (d_in, n)</span>
+<span class="sd">            B: shape (b, l, n)</span>
+<span class="sd">            C: shape (b, l, n)</span>
+<span class="sd">            D: shape (d_in,)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            output: shape (b, l, d_in)</span>
+
+<span class="sd">        Official Implementation:</span>
+<span class="sd">            selective_scan_ref(), https://github.com/state-spaces/mamba/blob/main/mamba_ssm/ops/selective_scan_interface.py#L86</span>
+<span class="sd">            Note: I refactored some parts out of `selective_scan_ref` out, so the functionality doesn&#39;t match exactly.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">d_in</span><span class="p">)</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Discretize continuous parameters (A, B)</span>
+        <span class="c1"># - A is discretized using zero-order hold (ZOH) discretization (see Section 2 Equation 4 in the Mamba paper [1])</span>
+        <span class="c1"># - B is discretized using a simplified Euler discretization instead of ZOH. From a discussion with authors:</span>
+        <span class="c1">#   &quot;A is the more important term and the performance doesn&#39;t change much with the simplication on B&quot;</span>
+        <span class="n">deltaA</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">einsum</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="s1">&#39;b l d_in, d_in n -&gt; b d_in l n&#39;</span><span class="p">))</span>
+        <span class="n">deltaB_u</span> <span class="o">=</span> <span class="n">einsum</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="s1">&#39;b l d_in, b l n, b l d_in -&gt; b d_in l n&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Perform selective scan (see scan_SSM() in The Annotated S4 [2])</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">b</span><span class="p">,</span> <span class="n">d_in</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="n">deltaA</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">ys</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">deltaA</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">deltaB_u</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">einsum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">C</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="p">:],</span> <span class="s1">&#39;b d_in n, b n -&gt; b d_in&#39;</span><span class="p">)</span>
+            <span class="n">ys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">ys</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># shape (b, l, d_in)</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">u</span> <span class="o">*</span> <span class="n">D</span>
+
+        <span class="k">return</span> <span class="n">y</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MambaPreTrainedModel">
+<a class="viewcode-back" href="../../../fedem.models.html#fedem.models.mamba.MambaPreTrainedModel">[docs]</a>
+<span class="k">class</span> <span class="nc">MambaPreTrainedModel</span><span class="p">(</span><span class="n">PreTrainedModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for pre-trained Mamba models.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config_class</span> <span class="o">=</span> <span class="n">MambaConfig</span>
+    <span class="n">base_model_prefix</span> <span class="o">=</span> <span class="s2">&quot;model&quot;</span>
+    <span class="n">supports_gradient_checkpointing</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">_no_split_modules</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MambaBlock&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_init_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize weights for Mamba model.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">std</span> <span class="o">=</span> <span class="mf">0.02</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv1d</span><span class="p">)):</span>
+            <span class="n">module</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">std</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">module</span><span class="o">.</span><span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">module</span><span class="o">.</span><span class="n">bias</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">zero_</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">):</span>
+            <span class="n">module</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">std</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">module</span><span class="o">.</span><span class="n">padding_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">module</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">module</span><span class="o">.</span><span class="n">padding_idx</span><span class="p">]</span><span class="o">.</span><span class="n">zero_</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="MambaModel">
+<a class="viewcode-back" href="../../../fedem.models.html#fedem.models.mamba.MambaModel">[docs]</a>
+<span class="k">class</span> <span class="nc">MambaModel</span><span class="p">(</span><span class="n">MambaPreTrainedModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mamba model architecture consisting of MambaBlocks.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        config (MambaConfig): Mamba model configuration.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">MambaConfig</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Full Mamba model.</span>
+<span class="sd">        Mamba model decoder consisting of *config.n_layer* layers. Each layer is a [`MambaBlock`]</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config: MambaConfig</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">d_model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">([</span><span class="n">MambaBlock</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">n_layer</span><span class="p">)])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">norm_f</span> <span class="o">=</span> <span class="n">MambaRMSNorm</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">d_model</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">gradient_checkpointing</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_init</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MambaModel.get_input_embeddings">
+<a class="viewcode-back" href="../../../fedem.models.html#fedem.models.mamba.MambaModel.get_input_embeddings">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_input_embeddings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span></div>
+
+
+<div class="viewcode-block" id="MambaModel.set_input_embeddings">
+<a class="viewcode-back" href="../../../fedem.models.html#fedem.models.mamba.MambaModel.set_input_embeddings">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_input_embeddings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="MambaModel.forward">
+<a class="viewcode-back" href="../../../fedem.models.html#fedem.models.mamba.MambaModel.forward">[docs]</a>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">input_ids</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">return_dict</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">,</span> <span class="n">BaseModelOutputWithPast</span><span class="p">]:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="p">(</span><span class="n">input_ids</span><span class="p">)</span>
+        <span class="n">all_hidden_states</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">all_hidden_states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="n">hidden_states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm_f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">BaseModelOutputWithPast</span><span class="p">(</span>
+            <span class="n">last_hidden_state</span><span class="o">=</span><span class="n">hidden_states</span><span class="p">,</span>
+            <span class="n">hidden_states</span><span class="o">=</span><span class="n">all_hidden_states</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MambaForCausalLM">
+<a class="viewcode-back" href="../../../fedem.models.html#fedem.models.mamba.MambaForCausalLM">[docs]</a>
+<span class="k">class</span> <span class="nc">MambaForCausalLM</span><span class="p">(</span><span class="n">MambaPreTrainedModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mamba model for Causal Language Modeling.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        config (MambaConfig): Mamba model configuration.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_tied_weights_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;lm_head.weight&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize MambaForCausalLM module.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">MambaModel</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vocab_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">vocab_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lm_head</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">d_model</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lm_head</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">embedding</span><span class="o">.</span><span class="n">weight</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_init</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MambaForCausalLM.get_input_embeddings">
+<a class="viewcode-back" href="../../../fedem.models.html#fedem.models.mamba.MambaForCausalLM.get_input_embeddings">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_input_embeddings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">embedding</span></div>
+
+
+<div class="viewcode-block" id="MambaForCausalLM.set_input_embeddings">
+<a class="viewcode-back" href="../../../fedem.models.html#fedem.models.mamba.MambaForCausalLM.set_input_embeddings">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_input_embeddings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="MambaForCausalLM.get_output_embeddings">
+<a class="viewcode-back" href="../../../fedem.models.html#fedem.models.mamba.MambaForCausalLM.get_output_embeddings">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_output_embeddings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lm_head</span></div>
+
+
+<div class="viewcode-block" id="MambaForCausalLM.set_output_embeddings">
+<a class="viewcode-back" href="../../../fedem.models.html#fedem.models.mamba.MambaForCausalLM.set_output_embeddings">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_output_embeddings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_embeddings</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lm_head</span> <span class="o">=</span> <span class="n">new_embeddings</span></div>
+
+
+<div class="viewcode-block" id="MambaForCausalLM.set_decoder">
+<a class="viewcode-back" href="../../../fedem.models.html#fedem.models.mamba.MambaForCausalLM.set_decoder">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_decoder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decoder</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">decoder</span></div>
+
+
+<div class="viewcode-block" id="MambaForCausalLM.get_decoder">
+<a class="viewcode-back" href="../../../fedem.models.html#fedem.models.mamba.MambaForCausalLM.get_decoder">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_decoder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span></div>
+
+
+<div class="viewcode-block" id="MambaForCausalLM.forward">
+<a class="viewcode-back" href="../../../fedem.models.html#fedem.models.mamba.MambaForCausalLM.forward">[docs]</a>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">input_ids</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">labels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">output_attentions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">output_hidden_states</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">return_dict</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">,</span> <span class="n">CausalLMOutputWithPast</span><span class="p">]:</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span>
+            <span class="n">input_ids</span><span class="o">=</span><span class="n">input_ids</span><span class="p">,</span>
+            <span class="n">return_dict</span><span class="o">=</span><span class="n">return_dict</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">hidden_states</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lm_head</span><span class="p">(</span><span class="n">hidden_states</span><span class="p">)</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="n">logits</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">shift_logits</span> <span class="o">=</span> <span class="n">logits</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+            <span class="n">shift_labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+            <span class="n">loss_fct</span> <span class="o">=</span> <span class="n">CrossEntropyLoss</span><span class="p">()</span>
+            <span class="n">shift_logits</span> <span class="o">=</span> <span class="n">shift_logits</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">)</span>
+            <span class="n">shift_labels</span> <span class="o">=</span> <span class="n">shift_labels</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">shift_labels</span> <span class="o">=</span> <span class="n">shift_labels</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">shift_logits</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_fct</span><span class="p">(</span><span class="n">shift_logits</span><span class="p">,</span> <span class="n">shift_labels</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">return_dict</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="p">(</span><span class="n">logits</span><span class="p">,)</span> <span class="o">+</span> <span class="n">outputs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">loss</span><span class="p">,)</span> <span class="o">+</span> <span class="n">output</span> <span class="k">if</span> <span class="n">loss</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">output</span>
+
+        <span class="k">return</span> <span class="n">CausalLMOutputWithPast</span><span class="p">(</span>
+            <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span>
+            <span class="n">logits</span><span class="o">=</span><span class="n">logits</span><span class="p">,</span>
+            <span class="n">hidden_states</span><span class="o">=</span><span class="n">outputs</span><span class="o">.</span><span class="n">hidden_states</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MambaForCausalLM.prepare_inputs_for_generation">
+<a class="viewcode-back" href="../../../fedem.models.html#fedem.models.mamba.MambaForCausalLM.prepare_inputs_for_generation">[docs]</a>
+    <span class="k">def</span> <span class="nf">prepare_inputs_for_generation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_ids</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">model_inputs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;input_ids&quot;</span><span class="p">:</span> <span class="n">input_ids</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">model_inputs</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, mlsquare.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

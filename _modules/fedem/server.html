@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fedem.server &mdash; fedem v0.0.7 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=401b779c"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            fedem
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">fedem</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fedem</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">fedem.server</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for fedem.server</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">DatasetDict</span><span class="p">,</span> <span class="n">load_dataset</span>
+<span class="kn">from</span> <span class="nn">huggingface_hub</span> <span class="kn">import</span> <span class="n">HfApi</span><span class="p">,</span> <span class="n">ModelFilter</span>
+<span class="kn">from</span> <span class="nn">peft</span> <span class="kn">import</span> <span class="n">PeftMixedModel</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AutoTokenizer</span><span class="p">,</span>
+    <span class="n">DataCollatorForLanguageModeling</span><span class="p">,</span>
+    <span class="n">Trainer</span><span class="p">,</span>
+    <span class="n">TrainingArguments</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">..configurations.mamba</span> <span class="kn">import</span> <span class="n">MambaConfig</span>
+<span class="kn">from</span> <span class="nn">..models.mamba</span> <span class="kn">import</span> <span class="n">MambaForCausalLM</span>
+<span class="kn">from</span> <span class="nn">..utils.huggingface</span> <span class="kn">import</span> <span class="n">get_client_details</span><span class="p">,</span> <span class="n">verify_user_with_org</span>
+
+
+<div class="viewcode-block" id="Seshu">
+<a class="viewcode-back" href="../../fedem.server.html#fedem.server.Seshu">[docs]</a>
+<span class="k">class</span> <span class="nc">Seshu</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">adapters</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">config_file</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">hf_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">org_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;mlsquare&quot;</span><span class="p">,</span>
+        <span class="n">train_args</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hf_token</span> <span class="o">=</span> <span class="n">hf_token</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_details</span> <span class="o">=</span> <span class="n">get_client_details</span><span class="p">(</span><span class="n">hf_token</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hf_token</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_details</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fullname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_details</span><span class="p">[</span><span class="s1">&#39;fullname&#39;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">org_id</span> <span class="o">=</span> <span class="n">org_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">org_details</span> <span class="o">=</span> <span class="n">verify_user_with_org</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">client_details</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">org_id</span><span class="p">,</span> <span class="n">access_level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;admin&#39;</span><span class="p">,</span> <span class="s1">&#39;write&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fullname</span><span class="si">}</span><span class="s2"> is part of the organization </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">org_id</span><span class="si">}</span><span class="s2"> with write access.&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">adapters</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">adapters</span> <span class="o">=</span> <span class="n">load_json</span><span class="p">(</span><span class="n">adapters</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">adapters</span> <span class="o">=</span> <span class="n">adapters</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config_data</span> <span class="o">=</span> <span class="n">load_json</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config_data</span> <span class="o">=</span> <span class="n">config_file</span>
+
+        <span class="k">if</span> <span class="n">train_args</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">train_args</span> <span class="o">=</span> <span class="n">train_args</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">train_args</span> <span class="o">=</span> <span class="n">TrainingArguments</span><span class="p">(</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;mamba&quot;</span><span class="p">,</span>
+                <span class="n">per_device_train_batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">per_device_eval_batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">num_train_epochs</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                <span class="n">weight_decay</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+                <span class="n">lr_scheduler_type</span><span class="o">=</span><span class="s2">&quot;cosine&quot;</span><span class="p">,</span>
+                <span class="n">learning_rate</span><span class="o">=</span><span class="mf">5e-4</span><span class="p">,</span>
+                <span class="n">fp16</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;tokenizer_path&quot;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="Seshu.tokenize">
+<a class="viewcode-back" href="../../fedem.server.html#fedem.server.Seshu.tokenize">[docs]</a>
+    <span class="k">def</span> <span class="nf">tokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;tgt&quot;</span><span class="p">],</span>
+            <span class="n">truncation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">max_length</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
+            <span class="n">return_overflowing_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">return_length</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">input_batch</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">length</span><span class="p">,</span> <span class="n">input_ids</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span> <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;input_ids&quot;</span><span class="p">]):</span>  <span class="c1"># type: ignore</span>
+            <span class="k">if</span> <span class="n">length</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">input_batch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_ids</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;input_ids&quot;</span><span class="p">:</span> <span class="n">input_batch</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="Seshu.pretrain">
+<a class="viewcode-back" href="../../fedem.server.html#fedem.server.Seshu.pretrain">[docs]</a>
+    <span class="k">def</span> <span class="nf">pretrain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cpt_hours</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">get_checkpoint_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;upload_path&quot;</span><span class="p">]):</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">MambaForCausalLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;upload_path&quot;</span><span class="p">],</span> <span class="n">token</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hf_token</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">MambaForCausalLM</span><span class="p">(</span>
+                <span class="n">MambaConfig</span><span class="p">(</span>
+                    <span class="n">vocab_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;vocab_size&quot;</span><span class="p">],</span>
+                    <span class="n">d_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;d_model&quot;</span><span class="p">],</span>
+                    <span class="n">d_conv</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;d_conv&quot;</span><span class="p">],</span>
+                    <span class="n">expand</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;expand&quot;</span><span class="p">],</span>
+                    <span class="n">conv_bias</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;conv_bias&quot;</span><span class="p">],</span>
+                    <span class="n">bias</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;bias&quot;</span><span class="p">],</span>
+                    <span class="n">n_layer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;n_layer&quot;</span><span class="p">],</span>
+                    <span class="n">dt_rank</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;dt_rank&quot;</span><span class="p">],</span>
+                    <span class="n">pad_vocab_size_multiple</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;pad_vocab_size_multiple&quot;</span><span class="p">],</span>
+                    <span class="n">initializer_range</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;initializer_range&quot;</span><span class="p">],</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">pad_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">eos_token</span>
+        <span class="n">data_collator</span> <span class="o">=</span> <span class="n">DataCollatorForLanguageModeling</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">,</span> <span class="n">mlm</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
+        <span class="n">tokenized_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize</span><span class="p">,</span> <span class="n">batched</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">remove_columns</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">column_names</span>
+        <span class="p">)</span>
+
+        <span class="n">trainer</span> <span class="o">=</span> <span class="n">MambaTrainer</span><span class="p">(</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">tokenizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">,</span>
+            <span class="n">args</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">train_args</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">data_collator</span><span class="o">=</span><span class="n">data_collator</span><span class="p">,</span>
+            <span class="n">train_dataset</span><span class="o">=</span><span class="n">tokenized_data</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">],</span>  <span class="c1"># type: ignore</span>
+            <span class="n">eval_dataset</span><span class="o">=</span><span class="n">tokenized_data</span><span class="p">[</span><span class="s2">&quot;valid&quot;</span><span class="p">],</span>  <span class="c1"># type: ignore</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cpt_hours</span><span class="p">:</span>
+            <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span> <span class="o">&gt;</span> <span class="n">cpt_hours</span> <span class="o">*</span> <span class="mi">3600</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+                <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Trainer function will be called!&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Trainer function will be called!&quot;</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+
+        <span class="c1"># trainer.save_model(os.path.join(self.local_path, &quot;local_copy&quot;))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;upload_path&quot;</span><span class="p">])</span>  <span class="c1"># type: ignore</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Model was uploaded to the hub.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Commit link: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">commit_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Model was not uploaded to the hub due to an error.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Seshu.model_merge_eval">
+<a class="viewcode-back" href="../../fedem.server.html#fedem.server.Seshu.model_merge_eval">[docs]</a>
+    <span class="k">def</span> <span class="nf">model_merge_eval</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="p">,</span> <span class="n">type_config</span><span class="o">=</span><span class="s2">&quot;small&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="s2">&quot;mlsquare/SERVER_samantar_mixed_val&quot;</span>
+    <span class="p">):</span>
+        <span class="n">adapters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adapters</span><span class="p">[</span><span class="n">type_config</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">tokenizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">model_merge</span><span class="p">(</span><span class="n">adapters</span><span class="p">,</span> <span class="n">model_path</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="compute_loss">
+<a class="viewcode-back" href="../../fedem.server.html#fedem.server.compute_loss">[docs]</a>
+<span class="k">def</span> <span class="nf">compute_loss</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">return_outputs</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">lm_logits</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">lm_logits</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="n">shift_logits</span> <span class="o">=</span> <span class="n">lm_logits</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+    <span class="n">loss_fct</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+    <span class="n">lm_loss</span> <span class="o">=</span> <span class="n">loss_fct</span><span class="p">(</span><span class="n">shift_logits</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">shift_logits</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)),</span> <span class="n">labels</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">lm_loss</span></div>
+
+
+
+<div class="viewcode-block" id="evaluation">
+<a class="viewcode-back" href="../../fedem.server.html#fedem.server.evaluation">[docs]</a>
+<span class="k">def</span> <span class="nf">evaluation</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">1024</span><span class="p">):</span>
+    <span class="n">num_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">num_batches</span> <span class="o">=</span> <span class="p">(</span><span class="n">num_samples</span> <span class="o">+</span> <span class="n">batch_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">batch_size</span>
+    <span class="n">total_loss</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">batch_idx</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_batches</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Evaluating&quot;</span><span class="p">):</span>
+            <span class="n">start_idx</span> <span class="o">=</span> <span class="n">batch_idx</span> <span class="o">*</span> <span class="n">batch_size</span>
+            <span class="n">end_idx</span> <span class="o">=</span> <span class="nb">min</span><span class="p">((</span><span class="n">batch_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">)</span>
+            <span class="n">batch_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;tgt&#39;</span><span class="p">][</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span>
+            <span class="n">inputs</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">tokenizer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
+                    <span class="n">datum</span><span class="p">,</span>
+                    <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;pt&quot;</span><span class="p">,</span>
+                    <span class="n">truncation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;max_length&#39;</span><span class="p">,</span>
+                    <span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">batch_data</span>
+            <span class="p">]</span>
+            <span class="n">input_ids</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">compute_loss</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">input_ids</span><span class="p">)</span>
+            <span class="n">total_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="n">end_idx</span> <span class="o">-</span> <span class="n">start_idx</span><span class="p">)</span>
+
+    <span class="n">avg_loss</span> <span class="o">=</span> <span class="n">total_loss</span> <span class="o">/</span> <span class="n">num_samples</span>
+    <span class="k">return</span> <span class="n">avg_loss</span></div>
+
+
+
+<div class="viewcode-block" id="model_merge">
+<a class="viewcode-back" href="../../fedem.server.html#fedem.server.model_merge">[docs]</a>
+<span class="k">def</span> <span class="nf">model_merge</span><span class="p">(</span><span class="n">adapters</span><span class="p">,</span> <span class="n">model_path</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">):</span>
+    <span class="n">base_model</span> <span class="o">=</span> <span class="n">MambaForCausalLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;model loaded&quot;</span><span class="p">)</span>
+    <span class="n">ls_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span>
+    <span class="n">peft_model</span> <span class="o">=</span> <span class="n">PeftMixedModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">base_model</span><span class="p">,</span> <span class="n">adapters</span><span class="p">[</span><span class="n">ls_count</span><span class="p">])</span>  <span class="c1"># type: ignore</span>
+    <span class="n">ls_count</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">while</span> <span class="n">ls_count</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">adapters</span><span class="p">):</span>
+        <span class="n">peft_model</span><span class="o">.</span><span class="n">load_adapter</span><span class="p">(</span><span class="n">adapters</span><span class="p">[</span><span class="n">ls_count</span><span class="p">],</span> <span class="n">adapter_name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">ls_count</span><span class="p">))</span>
+        <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ls_count</span><span class="p">))</span>
+        <span class="n">ls_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">peft_model</span><span class="o">.</span><span class="n">set_adapter</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+    <span class="n">peft_model</span> <span class="o">=</span> <span class="n">peft_model</span><span class="o">.</span><span class="n">merge_and_unload</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;adapter merged&quot;</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">evaluation</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">peft_model</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="create_JSON">
+<a class="viewcode-back" href="../../fedem.server.html#fedem.server.create_JSON">[docs]</a>
+<span class="k">def</span> <span class="nf">create_JSON</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="n">json_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
+        <span class="n">json_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_data">
+<a class="viewcode-back" href="../../fedem.server.html#fedem.server.get_data">[docs]</a>
+<span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load a fraction of the dataset from the specified path and return it.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data_path (str): Path to the dataset.</span>
+<span class="sd">        fraction (float, optional): Fraction of the dataset to load. Defaults to 0.01.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        datasets.Dataset: Loaded dataset.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="n">data_path</span><span class="p">)[</span><span class="s1">&#39;train&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shuffle</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">*</span> <span class="n">fraction</span><span class="p">))))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;data fetched&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+
+<div class="viewcode-block" id="load_json">
+<a class="viewcode-back" href="../../fedem.server.html#fedem.server.load_json">[docs]</a>
+<span class="k">def</span> <span class="nf">load_json</span><span class="p">(</span><span class="n">json_path</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
+        <span class="n">loaded_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">loaded_data</span></div>
+
+
+
+<div class="viewcode-block" id="print_trainable_parameters">
+<a class="viewcode-back" href="../../fedem.server.html#fedem.server.print_trainable_parameters">[docs]</a>
+<span class="k">def</span> <span class="nf">print_trainable_parameters</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prints the number of trainable parameters in the model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">trainable_params</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">all_param</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">():</span>
+        <span class="n">all_param</span> <span class="o">+=</span> <span class="n">param</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">:</span>
+            <span class="n">trainable_params</span> <span class="o">+=</span> <span class="n">param</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;trainable params: </span><span class="si">{</span><span class="n">trainable_params</span><span class="si">}</span><span class="s2"> || all params: </span><span class="si">{</span><span class="n">all_param</span><span class="si">}</span><span class="s2"> || trainable%: </span><span class="si">{</span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">trainable_params</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">all_param</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="load_data">
+<a class="viewcode-back" href="../../fedem.server.html#fedem.server.load_data">[docs]</a>
+<span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="n">data_path</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span><span class="o">.</span><span class="n">shuffle</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">DatasetDict</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)))),</span>  <span class="c1"># type: ignore</span>
+            <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;valid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;valid&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)))),</span>  <span class="c1"># type: ignore</span>
+        <span class="p">}</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="make_config">
+<a class="viewcode-back" href="../../fedem.server.html#fedem.server.make_config">[docs]</a>
+<span class="k">def</span> <span class="nf">make_config</span><span class="p">(</span><span class="n">json</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a MambaConfig object based on the provided JSON data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        json (dict): JSON data containing configuration parameters.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        MambaConfig: Created MambaConfig object.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">MambaConfig</span><span class="p">(</span>
+        <span class="n">vocab_size</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;vocab_size&quot;</span><span class="p">],</span>
+        <span class="n">d_model</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;d_model&quot;</span><span class="p">],</span>
+        <span class="n">d_conv</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;d_conv&quot;</span><span class="p">],</span>
+        <span class="n">expand</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;expand&quot;</span><span class="p">],</span>
+        <span class="n">conv_bias</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;conv_bias&quot;</span><span class="p">],</span>
+        <span class="n">bias</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;bias&quot;</span><span class="p">],</span>
+        <span class="n">n_layer</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;n_layer&quot;</span><span class="p">],</span>
+        <span class="n">dt_rank</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;dt_rank&quot;</span><span class="p">],</span>
+        <span class="n">pad_vocab_size_multiple</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;pad_vocab_size_multiple&quot;</span><span class="p">],</span>
+        <span class="n">initializer_range</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;initializer_range&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">config</span></div>
+
+
+
+<div class="viewcode-block" id="get_checkpoint_model">
+<a class="viewcode-back" href="../../fedem.server.html#fedem.server.get_checkpoint_model">[docs]</a>
+<span class="k">def</span> <span class="nf">get_checkpoint_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a checkpoint model by model name from an organization.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model_name (str): Name of the model.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str | False: Model ID if found, False otherwise.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">get_models_by_organization</span><span class="p">(</span><span class="n">org_id</span><span class="p">,</span> <span class="n">model_name</span><span class="p">):</span>
+        <span class="n">api</span> <span class="o">=</span> <span class="n">HfApi</span><span class="p">()</span>
+        <span class="n">new_filter</span> <span class="o">=</span> <span class="n">ModelFilter</span><span class="p">(</span><span class="n">tags</span><span class="o">=</span><span class="s2">&quot;mamba&quot;</span><span class="p">)</span>
+        <span class="n">models</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">list_models</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">new_filter</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">org_id</span> <span class="ow">in</span> <span class="n">i</span><span class="o">.</span><span class="n">modelId</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="n">i</span><span class="o">.</span><span class="n">modelId</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+                    <span class="k">return</span> <span class="n">i</span><span class="o">.</span><span class="n">modelId</span>  <span class="c1"># type: ignore</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">org_id</span> <span class="o">=</span> <span class="s2">&quot;mlsquare&quot;</span>
+    <span class="k">return</span> <span class="n">get_models_by_organization</span><span class="p">(</span><span class="n">org_id</span><span class="p">,</span> <span class="n">model_name</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="MambaTrainer">
+<a class="viewcode-back" href="../../fedem.server.html#fedem.server.MambaTrainer">[docs]</a>
+<span class="k">class</span> <span class="nc">MambaTrainer</span><span class="p">(</span><span class="n">Trainer</span><span class="p">):</span>
+<div class="viewcode-block" id="MambaTrainer.compute_loss">
+<a class="viewcode-back" href="../../fedem.server.html#fedem.server.MambaTrainer.compute_loss">[docs]</a>
+    <span class="k">def</span> <span class="nf">compute_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">return_outputs</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the loss for the training process.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model: The PyTorch model.</span>
+<span class="sd">            inputs: Input data.</span>
+<span class="sd">            return_outputs (bool): Whether to return the computed loss.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: Computed language modeling loss.</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">input_ids</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;input_ids&quot;</span><span class="p">)</span>
+        <span class="n">lm_logits</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">input_ids</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">input_ids</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">lm_logits</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="n">shift_logits</span> <span class="o">=</span> <span class="n">lm_logits</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+        <span class="n">loss_fct</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+        <span class="n">lm_loss</span> <span class="o">=</span> <span class="n">loss_fct</span><span class="p">(</span><span class="n">shift_logits</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">shift_logits</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)),</span> <span class="n">labels</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">lm_loss</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, mlsquare.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

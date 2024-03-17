@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fedem.models package &mdash; fedem v0.0.7 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=401b779c"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="fedem.server package" href="fedem.server.html" />
+    <link rel="prev" title="fedem.configurations package" href="fedem.configurations.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            fedem
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">fedem</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="fedem.html">fedem package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fedem.client.html">fedem.client package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fedem.server.html">fedem.server package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fedem.configurations.html">fedem.configurations package</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">fedem.models package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-fedem.models.mamba">fedem.models.mamba module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#fedem.models.mamba.MambaBlock"><code class="docutils literal notranslate"><span class="pre">MambaBlock</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fedem.models.mamba.MambaForCausalLM"><code class="docutils literal notranslate"><span class="pre">MambaForCausalLM</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fedem.models.mamba.MambaModel"><code class="docutils literal notranslate"><span class="pre">MambaModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fedem.models.mamba.MambaPreTrainedModel"><code class="docutils literal notranslate"><span class="pre">MambaPreTrainedModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fedem.models.mamba.MambaRMSNorm"><code class="docutils literal notranslate"><span class="pre">MambaRMSNorm</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-fedem.models">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fedem.trainer.html">fedem.trainer package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fedem.utils.html">fedem.utils package</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">fedem</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">fedem</a></li>
+          <li class="breadcrumb-item"><a href="fedem.html">fedem package</a></li>
+      <li class="breadcrumb-item active">fedem.models package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/fedem.models.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="fedem-models-package">
+<h1>fedem.models package<a class="headerlink" href="#fedem-models-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-fedem.models.mamba">
+<span id="fedem-models-mamba-module"></span><h2>fedem.models.mamba module<a class="headerlink" href="#module-fedem.models.mamba" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaBlock">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fedem.models.mamba.</span></span><span class="sig-name descname"><span class="pre">MambaBlock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="fedem.configurations.html#fedem.configurations.mamba.MambaConfig" title="fedem.configurations.mamba.MambaConfig"><span class="pre">MambaConfig</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fedem/models/mamba.html#MambaBlock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fedem.models.mamba.MambaBlock" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Mamba block module as described in the Mamba paper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="fedem.configurations.html#fedem.configurations.mamba.MambaConfig" title="fedem.configurations.mamba.MambaConfig"><em>MambaConfig</em></a>) – Mamba model configuration.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaBlock.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fedem/models/mamba.html#MambaBlock.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fedem.models.mamba.MambaBlock.forward" title="Link to this definition"></a></dt>
+<dd><p>Mamba block forward. This looks the same as Figure 3 in Section 3.4 in the Mamba paper [1].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> – shape (b, l, d)    (See Glossary at top for definitions of b, l, d_in, n…)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>shape (b, l, d)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>output</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Official Implementation:</dt><dd><p>class Mamba, <a class="reference external" href="https://github.com/state-spaces/mamba/blob/main/mamba_ssm/modules/mamba_simple.py#L119">https://github.com/state-spaces/mamba/blob/main/mamba_ssm/modules/mamba_simple.py#L119</a>
+mamba_inner_ref(), <a class="reference external" href="https://github.com/state-spaces/mamba/blob/main/mamba_ssm/ops/selective_scan_interface.py#L311">https://github.com/state-spaces/mamba/blob/main/mamba_ssm/ops/selective_scan_interface.py#L311</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaBlock.selective_scan">
+<span class="sig-name descname"><span class="pre">selective_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fedem/models/mamba.html#MambaBlock.selective_scan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fedem.models.mamba.MambaBlock.selective_scan" title="Link to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Does selective scan algorithm. See:</dt><dd><ul class="simple">
+<li><p>Section 2 State Space Models in the Mamba paper [1]</p></li>
+<li><p>Algorithm 2 in Section 3.2 in the Mamba paper [1]</p></li>
+<li><p>run_SSM(A, B, C, u) in The Annotated S4 [2]</p></li>
+</ul>
+</dd>
+<dt>This is the classic discrete state space formula:</dt><dd><p>x(t + 1) = Ax(t) + Bu(t)
+y(t)     = Cx(t) + Du(t)</p>
+</dd>
+</dl>
+<p>except B and C (and the step size delta, which is used for discretization) are dependent on the input x(t).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> – shape (b, l, d_in)    (See Glossary at top for definitions of b, l, d_in, n…)</p></li>
+<li><p><strong>delta</strong> – shape (b, l, d_in)</p></li>
+<li><p><strong>A</strong> – shape (d_in, n)</p></li>
+<li><p><strong>B</strong> – shape (b, l, n)</p></li>
+<li><p><strong>C</strong> – shape (b, l, n)</p></li>
+<li><p><strong>D</strong> – shape (d_in,)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>shape (b, l, d_in)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>output</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Official Implementation:</dt><dd><p>selective_scan_ref(), <a class="reference external" href="https://github.com/state-spaces/mamba/blob/main/mamba_ssm/ops/selective_scan_interface.py#L86">https://github.com/state-spaces/mamba/blob/main/mamba_ssm/ops/selective_scan_interface.py#L86</a>
+Note: I refactored some parts out of <cite>selective_scan_ref</cite> out, so the functionality doesn’t match exactly.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaBlock.ssm">
+<span class="sig-name descname"><span class="pre">ssm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fedem/models/mamba.html#MambaBlock.ssm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fedem.models.mamba.MambaBlock.ssm" title="Link to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Runs the SSM. See:</dt><dd><ul class="simple">
+<li><p>Algorithm 2 in Section 3.2 in the Mamba paper [1]</p></li>
+<li><p>run_SSM(A, B, C, u) in The Annotated S4 [2]</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> – shape (b, l, d_in)    (See Glossary at top for definitions of b, l, d_in, n…)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>shape (b, l, d_in)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>output</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Official Implementation:</dt><dd><p>mamba_inner_ref(), <a class="reference external" href="https://github.com/state-spaces/mamba/blob/main/mamba_ssm/ops/selective_scan_interface.py#L311">https://github.com/state-spaces/mamba/blob/main/mamba_ssm/ops/selective_scan_interface.py#L311</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaForCausalLM">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fedem.models.mamba.</span></span><span class="sig-name descname"><span class="pre">MambaForCausalLM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fedem/models/mamba.html#MambaForCausalLM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fedem.models.mamba.MambaForCausalLM" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fedem.models.mamba.MambaPreTrainedModel" title="fedem.models.mamba.MambaPreTrainedModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">MambaPreTrainedModel</span></code></a></p>
+<p>Mamba model for Causal Language Modeling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="fedem.configurations.html#fedem.configurations.mamba.MambaConfig" title="fedem.configurations.mamba.MambaConfig"><em>MambaConfig</em></a>) – Mamba model configuration.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaForCausalLM.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LongTensor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LongTensor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_attentions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_hidden_states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">CausalLMOutputWithPast</span></span></span><a class="reference internal" href="_modules/fedem/models/mamba.html#MambaForCausalLM.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fedem.models.mamba.MambaForCausalLM.forward" title="Link to this definition"></a></dt>
+<dd><p>Define the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaForCausalLM.get_decoder">
+<span class="sig-name descname"><span class="pre">get_decoder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fedem/models/mamba.html#MambaForCausalLM.get_decoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fedem.models.mamba.MambaForCausalLM.get_decoder" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaForCausalLM.get_input_embeddings">
+<span class="sig-name descname"><span class="pre">get_input_embeddings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fedem/models/mamba.html#MambaForCausalLM.get_input_embeddings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fedem.models.mamba.MambaForCausalLM.get_input_embeddings" title="Link to this definition"></a></dt>
+<dd><p>Returns the model’s input embeddings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A torch module mapping vocabulary to hidden states.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>nn.Module</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaForCausalLM.get_output_embeddings">
+<span class="sig-name descname"><span class="pre">get_output_embeddings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fedem/models/mamba.html#MambaForCausalLM.get_output_embeddings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fedem.models.mamba.MambaForCausalLM.get_output_embeddings" title="Link to this definition"></a></dt>
+<dd><p>Returns the model’s output embeddings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A torch module mapping hidden states to vocabulary.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>nn.Module</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaForCausalLM.prepare_inputs_for_generation">
+<span class="sig-name descname"><span class="pre">prepare_inputs_for_generation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_ids</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fedem/models/mamba.html#MambaForCausalLM.prepare_inputs_for_generation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fedem.models.mamba.MambaForCausalLM.prepare_inputs_for_generation" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaForCausalLM.set_decoder">
+<span class="sig-name descname"><span class="pre">set_decoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decoder</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fedem/models/mamba.html#MambaForCausalLM.set_decoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fedem.models.mamba.MambaForCausalLM.set_decoder" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaForCausalLM.set_input_embeddings">
+<span class="sig-name descname"><span class="pre">set_input_embeddings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fedem/models/mamba.html#MambaForCausalLM.set_input_embeddings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fedem.models.mamba.MambaForCausalLM.set_input_embeddings" title="Link to this definition"></a></dt>
+<dd><p>Set model’s input embeddings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<cite>nn.Module</cite>) – A module mapping vocabulary to hidden states.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaForCausalLM.set_output_embeddings">
+<span class="sig-name descname"><span class="pre">set_output_embeddings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_embeddings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fedem/models/mamba.html#MambaForCausalLM.set_output_embeddings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fedem.models.mamba.MambaForCausalLM.set_output_embeddings" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fedem.models.mamba.</span></span><span class="sig-name descname"><span class="pre">MambaModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="fedem.configurations.html#fedem.configurations.mamba.MambaConfig" title="fedem.configurations.mamba.MambaConfig"><span class="pre">MambaConfig</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fedem/models/mamba.html#MambaModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fedem.models.mamba.MambaModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fedem.models.mamba.MambaPreTrainedModel" title="fedem.models.mamba.MambaPreTrainedModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">MambaPreTrainedModel</span></code></a></p>
+<p>Mamba model architecture consisting of MambaBlocks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="fedem.configurations.html#fedem.configurations.mamba.MambaConfig" title="fedem.configurations.mamba.MambaConfig"><em>MambaConfig</em></a>) – Mamba model configuration.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaModel.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LongTensor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BaseModelOutputWithPast</span></span></span><a class="reference internal" href="_modules/fedem/models/mamba.html#MambaModel.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fedem.models.mamba.MambaModel.forward" title="Link to this definition"></a></dt>
+<dd><p>Define the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaModel.get_input_embeddings">
+<span class="sig-name descname"><span class="pre">get_input_embeddings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fedem/models/mamba.html#MambaModel.get_input_embeddings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fedem.models.mamba.MambaModel.get_input_embeddings" title="Link to this definition"></a></dt>
+<dd><p>Returns the model’s input embeddings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A torch module mapping vocabulary to hidden states.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>nn.Module</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaModel.set_input_embeddings">
+<span class="sig-name descname"><span class="pre">set_input_embeddings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fedem/models/mamba.html#MambaModel.set_input_embeddings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fedem.models.mamba.MambaModel.set_input_embeddings" title="Link to this definition"></a></dt>
+<dd><p>Set model’s input embeddings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<cite>nn.Module</cite>) – A module mapping vocabulary to hidden states.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaPreTrainedModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fedem.models.mamba.</span></span><span class="sig-name descname"><span class="pre">MambaPreTrainedModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PretrainedConfig</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fedem/models/mamba.html#MambaPreTrainedModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fedem.models.mamba.MambaPreTrainedModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PreTrainedModel</span></code></p>
+<p>Base class for pre-trained Mamba models.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaPreTrainedModel.base_model_prefix">
+<span class="sig-name descname"><span class="pre">base_model_prefix</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'model'</span></em><a class="headerlink" href="#fedem.models.mamba.MambaPreTrainedModel.base_model_prefix" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaPreTrainedModel.config_class">
+<span class="sig-name descname"><span class="pre">config_class</span></span><a class="headerlink" href="#fedem.models.mamba.MambaPreTrainedModel.config_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="fedem.configurations.html#fedem.configurations.mamba.MambaConfig" title="fedem.configurations.mamba.MambaConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">MambaConfig</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaPreTrainedModel.supports_gradient_checkpointing">
+<span class="sig-name descname"><span class="pre">supports_gradient_checkpointing</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#fedem.models.mamba.MambaPreTrainedModel.supports_gradient_checkpointing" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaRMSNorm">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fedem.models.mamba.</span></span><span class="sig-name descname"><span class="pre">MambaRMSNorm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fedem/models/mamba.html#MambaRMSNorm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fedem.models.mamba.MambaRMSNorm" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Root Mean Square Normalization module for Mamba model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>d_model</strong> (<em>int</em>) – Model dimension.</p></li>
+<li><p><strong>eps</strong> (<em>float</em><em>, </em><em>optional</em>) – Epsilon value for numerical stability. Defaults to 1e-5.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="fedem.models.mamba.MambaRMSNorm.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fedem/models/mamba.html#MambaRMSNorm.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fedem.models.mamba.MambaRMSNorm.forward" title="Link to this definition"></a></dt>
+<dd><p>Define the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-fedem.models">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-fedem.models" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="fedem.configurations.html" class="btn btn-neutral float-left" title="fedem.configurations package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="fedem.server.html" class="btn btn-neutral float-right" title="fedem.server package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, mlsquare.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
