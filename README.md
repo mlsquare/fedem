@@ -13,16 +13,28 @@
   <a href="https://github.com/mlsquare/fedem/actions/workflows/sphinx.yml"><img src="https://github.com/mlsquare/fedem/actions/workflows/sphinx.yml/badge.svg"></a>
   <a href="https://github.com/mlsquare/fedem/actions/workflows/github-code-scanning/codeql"><img src="https://github.com/mlsquare/fedem/actions/workflows/github-code-scanning/codeql/badge.svg"></a>
   <a href="https://github.com/mlsquare/fedem/actions/workflows/pages/pages-build-deployment"><img src="https://github.com/mlsquare/fedem/actions/workflows/pages/pages-build-deployment/badge.svg"></a>
-  
+
 </div>
 
 <div align="center">
-  
+
   <a href="https://colab.research.google.com/github/mlsquare/fedem/blob/main/notebooks/fedem_seshu_client.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg"></a>
   <a href="https://github.com/mlsquare/fedem/actions/workflows/python-publish.yml"><img src="https://github.com/mlsquare/fedem/actions/workflows/python-publish.yml/badge.svg"></a>
 
 </div>
 </div>
+
+-----
+
+<p align="center">
+  <a href="#-demo">Demo</a> •
+  <a href="#-introduction">Introduction</a> •
+  <a href="#-framework">Framework</a> •
+  <a href="#-features">Features</a> •
+  <a href="https://mlsquare.github.io/fedem/" target="_blank">Docs</a> •
+  <a href="#-tutorials" target="_blank">Tutorials</a> •
+  <a href="#-contributions" target="_blank">Contributions</a>
+</p>
 
 
 ---
@@ -31,12 +43,17 @@ FedEm is an open-source library empowering community members to actively partici
 
 ---
 
+## 🎥 Demo
+
+<!-- <video goes here> -->
+<!-- https://github.com/homanp/superagent/assets/2464556/1a742181-6a5f-428c-82db-5f891dad0d31 -->
+
 ## Installation
 ```bash
 $ pip install fedem
 ```
 
-<h2> Introduction </h2>
+## Introduction
 The emergence of ChatGPT captured widespread attention, marking the first instance where individuals outside of technical circles could engage with Generative AI. This watershed moment sparked a surge of interest in cultivating secure applications of foundational models, alongside the exploration of domain-specific or community-driven alternatives to ChatGPT. Notably, the unveiling of LLaMA 2, an LLM generously open-sourced by Meta, catalyzed a plethora of advancements. This release fostered the creation of diverse tasks, tools, and resources, spanning from datasets to novel models and applications. Additionally, the introduction of Phi 2, an SLM by Microsoft, demonstrated that modestly-sized models could rival their larger counterparts, offering a compelling alternative that significantly reduces both training and operational costs.
 
 Yet, amid these strides, challenges persist. The training of foundational models within current paradigms demands substantial GPU resources, presenting a barrier to entry for many eager contributors from the broader community. In light of these obstacles, we advocate for FedEm.
@@ -58,12 +75,12 @@ We introduce the concept of continuous relay finetuning (CRF), which employs par
 
 The server-side cloud hub exhibits the capability for perpetual training and deployment of refreshed foundational models at specified intervals, such as monthly or daily cycles. Simultaneously, the CRF adapters engage in iterative refinement against these newly updated models, fostering continual adaptation in response to evolving datasets.
 
-<h2> Seshu </h2>
+<h3> Seshu </h3>
 Majority, if not all the LLMs, we see today are based on proven Transformer based architectures. And Transfomres have quadratic (in inputs tokens) complexity - therefore slow to train and infer. As a result, new memory and compute efficient attention mechanisms have sprungup, along with Engineering hacks. But, at the end of the day, they are still based on Transformer-based architectures.
 </br></br>
 Further, majority, with the exception of some Chinese LLMs, are English-centric and other languages have a token representation (no pun intended). Often, LLMs have a particulalr tokenizer -- which makes extension to other languages/ domains hard. Vocabulary size and Transfomers Computational Efficiency have an uneasy relationship. Developing SLMs or LLMs is still a compute heavy problem. Therefore, only large consortia with deep pockets, massive talent concentration and GPU farms can afford to build such models.
 
-<h2>Client side </h2>
+## Client side
 
 Example: <a href="https://colab.research.google.com/github/mlsquare/fedem/blob/main/notebooks/fedem_seshu_client.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
 
@@ -73,13 +90,13 @@ Example: <a href="https://colab.research.google.com/github/mlsquare/fedem/blob/m
  - [optional] can donate time or data or both
 
 #### Actions:
-Runs client side sscript which
+Runs client side script which
  - downloads data, pretrains model
  - SFTs via LoRA
  - pushes the adapter to HuggingFace model hub
 
 
-<h2>Server (who manages the federated learning)</h2>
+## Server (who manages the federated learning)
 
 Example: <a href="https://colab.research.google.com/github/mlsquare/fedem/blob/main/notebooks/fedem_seshu_server.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" style="margin: 0 auto; display: block;"></a>
 
@@ -89,7 +106,7 @@ Example: <a href="https://colab.research.google.com/github/mlsquare/fedem/blob/m
 - [optional] can donate time or data or both
 
 #### Actions:
- - Pretrains a multi-lingual Mamba model, publushes a checkpoint
+ - Pretrains a multi-lingual Mamba model, publishes a checkpoint
  - Evaluated the community contributed adapters in a single-blind fashion, and merges them into the pretrained model
  - Does continous pretrainning, and releases checkpoints periodically
 
@@ -101,6 +118,31 @@ Example: <a href="https://colab.research.google.com/github/mlsquare/fedem/blob/m
  - curate datasets
 
 
+## 🫶 Contributions:
+
+Fedem is an open-source project, and contributions are welcome. If you want to contribute, you can create new features, fix bugs, or improve the infrastructure. Please refer to the [CONTRIBUTING.md](https://github.com/mlsquare/fedem/blob/main/.github/CONTRIBUTING.md) file in the repository for more information on how to contribute.
+
+The views expressed or approach being taken - is of the individuals, and they do not represent any organization explicitly or implicitly.
+Likewise, anyone who wants to contribute their time, compute or data must understand that, this is a community experiment to develop LLMs by the community, and may not result in any significant outcome. On the contrary, this may end up in total failure. The contributors must take this risk on their own.
+
+To see how to contribute, visit [Contribution guidelines](https://github.com/mlsquare/fedem/blob/main/.github/CONTRIBUTING.md)
+
+
+Initial Contributors: [@dhavala](https://github.com/dhavala),
+[@yashwardhanchaudhuri](https://github.com/yashwardhanchaudhuri), &
+[@SaiNikhileshReddy](https://github.com/SaiNikhileshReddy)
+
+
+<!--
+To help with contributions, you can search, navigate, and understand Fedem's source code using Onboard AI's free tool LearnThisRepo.
+[learnthisrepo.com/fedem](https://learnthisrepo.com/fedem)
+
+<a href="https://github.com/mlsquare/fedem/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=mlsquare/fedem" />
+</a>
+-->
+
+<!--
  ## Roadmap
 
 ### Week 0
@@ -162,7 +204,4 @@ Code & Tools for Models, and Distributed Training
 - FEDML Open Source: A Unified and Scalable Machine Learning Library for Running Training and Deployment Anywhere at Any Scale [here](https://github.com/FedML-AI/FedML)
 - mergekit for model merign to implement multiple model merging techiques [here](https://github.com/arcee-ai/mergekit)
 
-
-### Note:
-The views expressed or approach being taken - is of the individuals, and they do not represent any organization explicitly or implicitly.
-Likewise, anyone who wants to contribute their time, compute or data must understand that, this is a community experiment to develop LLMs by the community, and may not result in any significant outcome. On the contrary, this may end up in total failure. The contributors must take this risk on their own.
+-->
