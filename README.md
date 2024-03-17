@@ -75,6 +75,13 @@ We introduce the concept of continuous relay finetuning (CRF), which employs par
 
 The server-side cloud hub exhibits the capability for perpetual training and deployment of refreshed foundational models at specified intervals, such as monthly or daily cycles. Simultaneously, the CRF adapters engage in iterative refinement against these newly updated models, fostering continual adaptation in response to evolving datasets.
 
+<h3> Selective locking of adapters </h3>
+
+For continuous relay finetuning, It is important to schedule the adapter training in a fashion that no two clients have the same adapter for training at one point of time. To ensure this access control, we use a time-dependent adapter scheduling. A client downloads an adapter at time T. The adapter will get locked for any other client i.e. cannot be finetuned till one client does not stop finetuning of that adapter. The hub checks periodically in every 5 minutes for access control of adapters. The adapter gets unlocked if any of the following conditions are met:
+- time elapsed for finetuning adapter A > 3 hours.
+- client pushes the finetuned adapters before 3 hours.
+
+
 <h3> Seshu </h3>
 Majority, if not all the LLMs, we see today are based on proven Transformer based architectures. And Transfomres have quadratic (in inputs tokens) complexity - therefore slow to train and infer. As a result, new memory and compute efficient attention mechanisms have sprungup, along with Engineering hacks. But, at the end of the day, they are still based on Transformer-based architectures.
 </br></br>
@@ -111,7 +118,7 @@ Example: <a href="https://colab.research.google.com/github/mlsquare/fedem/blob/m
  - Does continous pretrainning, and releases checkpoints periodically
 
 ### Academic Interests
- - experiment and identity good federating learning policies
+ - experiment and identify good federating learning policies
  - figure out effective training configurations to PT, CPT, SFT, FedT SLMs and LLMs
  - develop new task specific adapters
  - contribute your local, vernacular data
