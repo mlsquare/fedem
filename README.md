@@ -45,7 +45,7 @@ FedEm is an open-source library empowering community members to actively partici
 
 ## 🎥 Demo
 
-<!-- <video goes here> -->
+placeholder text - video goes here
 <!-- https://github.com/homanp/superagent/assets/2464556/1a742181-6a5f-428c-82db-5f891dad0d31 -->
 
 ## Installation
@@ -87,9 +87,7 @@ Majority, if not all the LLMs, we see today are based on proven Transformer base
 </br></br>
 Further, majority, with the exception of some Chinese LLMs, are English-centric and other languages have a token representation (no pun intended). Often, LLMs have a particulalr tokenizer -- which makes extension to other languages/ domains hard. Vocabulary size and Transfomers Computational Efficiency have an uneasy relationship. Developing SLMs or LLMs is still a compute heavy problem. Therefore, only large consortia with deep pockets, massive talent concentration and GPU farms can afford to build such models.
 
-## Client side
-
-Example: <a href="https://colab.research.google.com/github/mlsquare/fedem/blob/main/notebooks/fedem_seshu_client.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
+### Client side: <a href="https://colab.research.google.com/github/mlsquare/fedem/blob/main/notebooks/fedem_seshu_client.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
 
 #### Pre-reqs
  - has GPU, registers on HuggingFace/mlsquare for write access
@@ -103,9 +101,7 @@ Runs client side script which
  - pushes the adapter to HuggingFace model hub
 
 
-## Server (who manages the federated learning)
-
-Example: <a href="https://colab.research.google.com/github/mlsquare/fedem/blob/main/notebooks/fedem_seshu_server.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" style="margin: 0 auto; display: block;"></a>
+### Server side (HF Admin Only): <a href="https://colab.research.google.com/github/mlsquare/fedem/blob/main/notebooks/fedem_seshu_server.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
 
 #### Pre-reqs
 - has (big) GPU(s)
@@ -149,44 +145,43 @@ To help with contributions, you can search, navigate, and understand Fedem's sou
 </a>
 -->
 
-<!--
- ## Roadmap
+## Roadmap
 
-### Week 0
+#### Week 0
 - ~~Make Mamba compatiable with Transformer class~~
 - ~~Test LoRA adapters (adding, training, merging)~~
 - ~~Pretrain an SLM, SFT on LoRA, Merge, Push~~
-Outcome: A working end-to-end Pretraining and SFT-ing pipeline[DONE]
 
-### Week 1
-- ~~Develop client-side code[~~
+**Outcome:** A working end-to-end Pretraining and SFT-ing pipeline[DONE]
+
+#### Week 1
+- ~~Develop client-side code~~
 - ~~On multi-lingual indic dataset such as [samantar](https://huggingface.co/datasets/ai4bharat/samanantar), pretrain a model~~
-- Release a checkpoint[DONE]
 
-### Week 2
+**Outcome:** Release a checkpoint[DONE]
+
+#### Week 2
 - ~~Drive SFT via community (at least two users)~~
-- ~~Run Federated SFT-ing[~~
+- ~~Run Federated SFT-ing~~
 
-### Week 4 and onwards
+#### Week 4 and onwards
 - Benchmark and eval on test set (against other OSS LLMS)
 - Perplexity vs Epochs (and how Seshu is maturing)
 
 
-
-
-### References:
-Architectures and Tokenizers
+## References:
+#### Architectures and Tokenizers
 - Mamba: Linear-Time Sequence Modeling with Selective State Spaces, [paper](https://arxiv.org/abs/2312.00752),  1st, Dec, 2023
 - MambaByte: Token-free Selective State Space Model [paper](https://arxiv.org/abs/2401.13660), 24th, Jan, 2024
 - BlackMamba -  Mixture of Experts of State Space Models [paper](https://static1.squarespace.com/static/658ded386c43c219ee47caba/t/65bd73200920d050ccbac40c/1706914594353/blackMamba.pdf), [code](https://github.com/Zyphra/BlackMamba)
 - ByT5: Towards a token-free future with pre-trained byte-to-byte models [paper](https://arxiv.org/abs/2105.13626), 28th, May, 2023
 
-Indic LLMs
+#### Indic LLMs
 - RomanSetu: Efficiently unlocking multilingual capabilities of Large Language Models models via Romanization [paper](https://arxiv.org/abs/2401.14280), 25th, Jan, 2024
 - Open Hathi - [blog](https://www.sarvam.ai/blog/announcing-openhathi-series) from sarvam.ai, 12th Dec, 2023
 - MaLA-500: Massive Language Adaptation of Large Language Models [paper](https://arxiv.org/abs/2401.13303)
 
-Model Merging
+#### Model Merging
 - Model soups: averaging weights of multiple fine-tuned models improves accuracy without increasing inference time [paper](https://arxiv.org/abs/2203.05482)
 - Editing Models with Task Arithmetic [paper](https://arxiv.org/abs/2212.04089)
 - TIES-Merging: Resolving Interference When Merging Models [paper](https://arxiv.org/abs/2306.01708)
@@ -195,10 +190,10 @@ Model Merging
 - PhatGoose: The Challenge of Recycling PEFT Modules for Zero-Shot Generalization [blog](https://colinraffel.com/blog/phatgoose.html)
 - LoRA Hub: Efficient Cross-Task Generalization via Dynamic LoRA Composition (https://arxiv.org/abs/2307.13269)
 
-Datasets
+#### Datasets
 - samantar [here](https://huggingface.co/datasets/ai4bharat/samanantar)
 
-Code & Tools for Models, and Distributed Training
+##### Code & Tools for Models, and Distributed Training
 - Mamba-HF: Mamba model compatible with HuggingFace transformers [here](https://github.com/LegallyCoder/mamba-hf/tree/main)
 - Mamba pretrained model collection [here](https://huggingface.co/collections/Q-bert/mamba-65869481595e25821853d20d)
 - Mamba-minimal: a minimal implementaiton of Mamba architecture [here](https://github.com/johnma2006/mamba-minimal)
@@ -210,5 +205,3 @@ Code & Tools for Models, and Distributed Training
 - FATE-LM is a framework to support federated learning for large language models(LLMs) [here](https://github.com/FederatedAI/FATE-LLM)
 - FEDML Open Source: A Unified and Scalable Machine Learning Library for Running Training and Deployment Anywhere at Any Scale [here](https://github.com/FedML-AI/FedML)
 - mergekit for model merign to implement multiple model merging techiques [here](https://github.com/arcee-ai/mergekit)
-
--->
