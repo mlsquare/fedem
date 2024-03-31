@@ -41,6 +41,8 @@
 
 FedEm is an open-source library empowering community members to actively participate in the training and fine-tuning of foundational models, fostering transparency and equity in AI development. It aims to democratize the process, ensuring inclusivity and collective ownership in model training.
 
+See this [presentation](https://docs.google.com/presentation/d/1e2gm6sNYZywVPoEJdr0GUInFRzmwXZl6hFLFJpZq_pI/edit?usp=sharing)
+
 ---
 
 ## 🎥 Demo
