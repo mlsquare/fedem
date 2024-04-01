@@ -46,7 +46,7 @@ See this [presentation](https://docs.google.com/presentation/d/1jPBdclntoLZbOGRs
 ---
 
 ## 🎥 Demo
-[video](https://drive.google.com/file/d/1cknBGBbAuwkPNMwy88yZ6hylL14ErVsd/view?usp=sharing)
+[![Fedem Package](https://github.com/mlsquare/fedem/blob/main/assets/fedem_thumbnail.png?raw=true)](https://drive.google.com/file/d/1cknBGBbAuwkPNMwy88yZ6hylL14ErVsd/view?usp=sharing)
 
 ## Installation
 ```bash
