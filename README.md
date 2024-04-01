@@ -46,7 +46,7 @@ See this [presentation](https://docs.google.com/presentation/d/1jPBdclntoLZbOGRs
 ---
 
 ## 🎥 Demo
-[presentation](https://drive.google.com/file/d/1cknBGBbAuwkPNMwy88yZ6hylL14ErVsd/view?usp=sharing)
+[video](https://drive.google.com/file/d/1cknBGBbAuwkPNMwy88yZ6hylL14ErVsd/view?usp=sharing)
 
 ## Installation
 ```bash
